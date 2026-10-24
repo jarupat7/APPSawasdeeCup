@@ -543,24 +543,46 @@
     fetchLiveSchedule();
   }
 
-  // --- Automatic Data Fetching ---
+  // --- Automatic Fast Data Fetching ---
   async function fetchLiveSchedule() {
     const badge = document.getElementById('syncBadge');
     const badgeText = document.getElementById('syncStatusText');
 
     try {
-      const res = await fetch(GAS_URL + '?view=schedule&day=DAY1', { redirect: 'follow' });
+      // 1. Primary: Fast Single Court API (Super Lightweight ~0.3 KB, Instant response)
+      const fastUrl = GAS_URL + '?view=court&court=' + encodeURIComponent(currentCourt) + '&day=DAY1';
+      const res = await fetch(fastUrl, { redirect: 'follow' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      const matches = await res.json();
+      const data = await res.json();
 
-      if (Array.isArray(matches) && matches.length > 0) {
-        applyMatchFromSchedule(matches);
+      if (data && data.success && data.match) {
+        applySingleMatch(data.match);
         badge.className = 'live-badge';
-        badgeText.textContent = 'ดึงข้อมูลสดสำเร็จ (' + matches.length + ' แมตช์)';
+        badgeText.textContent = 'ดึงข้อมูลสดสำเร็จ (' + currentCourt + ')';
+        return;
+      } else if (Array.isArray(data) && data.length > 0) {
+        applyMatchFromSchedule(data);
+        badge.className = 'live-badge';
+        badgeText.textContent = 'ดึงข้อมูลสดสำเร็จ (' + data.length + ' แมตช์)';
         return;
       }
     } catch (errGas) {
-      console.warn('GAS fetch fallback to local:', errGas);
+      console.warn('Fast fetch fallback:', errGas);
+      // Fallback 1: Full schedule from GAS
+      try {
+        const resFull = await fetch(GAS_URL + '?view=schedule&day=DAY1', { redirect: 'follow' });
+        if (resFull.ok) {
+          const matches = await resFull.json();
+          if (Array.isArray(matches) && matches.length > 0) {
+            applyMatchFromSchedule(matches);
+            badge.className = 'live-badge';
+            badgeText.textContent = 'ดึงข้อมูลสดสำเร็จ (สำรอง)';
+            return;
+          }
+        }
+      } catch (eFull) {}
+
+      // Fallback 2: Local Server API
       try {
         const resLocal = await fetch('/api/cam-feed?court=' + encodeURIComponent(currentCourt) + '&_=' + Date.now());
         if (resLocal.ok) {
@@ -585,6 +607,33 @@
     }
   }
 
+  function applySingleMatch(m) {
+    if (!m) return;
+    matchData.court = m.court || currentCourt;
+    matchData.matchId = m.match_id || '-';
+    matchData.category = (m.level ? m.level + ' ' : '') + (m.round || '');
+    matchData.teamA = m.team_a || 'รอผู้แข่งขัน A';
+    matchData.teamB = m.team_b || 'รอผู้แข่งขัน B';
+
+    let sa = Number(m.score_a) || 0;
+    let sb = Number(m.score_b) || 0;
+    const cleanSets = cleanSetsString(m.raw_sets_display);
+    if (cleanSets && cleanSets.includes('-')) {
+      const setsArr = cleanSets.split(',').map(s => s.trim());
+      const lastSet = setsArr[setsArr.length - 1];
+      const pts = lastSet.split('-').map(x => parseInt(x.trim(), 10));
+      if (pts.length === 2 && !isNaN(pts[0]) && !isNaN(pts[1])) {
+        sa = pts[0];
+        sb = pts[1];
+      }
+    }
+    matchData.scoreA = sa;
+    matchData.scoreB = sb;
+    matchData.status = (m.status || 'PENDING').toUpperCase();
+    matchData.rawSets = cleanSets;
+    updateUI();
+  }
+
   function applyMatchFromSchedule(matches) {
     const norm = (s) => (s || '').toUpperCase().replace(/^C0?/, '').trim();
     const target = norm(currentCourt);
@@ -597,31 +646,7 @@
       if (!m) m = courtMatches.find(x => x.status !== 'done');
       if (!m) m = courtMatches[courtMatches.length - 1];
 
-      if (m) {
-        matchData.court = m.court || currentCourt;
-        matchData.matchId = m.match_id || '-';
-        matchData.category = (m.level ? m.level + ' ' : '') + (m.round || '');
-        matchData.teamA = m.team_a || 'รอผู้แข่งขัน A';
-        matchData.teamB = m.team_b || 'รอผู้แข่งขัน B';
-
-        let sa = Number(m.score_a) || 0;
-        let sb = Number(m.score_b) || 0;
-        const cleanSets = cleanSetsString(m.raw_sets_display);
-        if (cleanSets && cleanSets.includes('-')) {
-          const setsArr = cleanSets.split(',').map(s => s.trim());
-          const lastSet = setsArr[setsArr.length - 1];
-          const pts = lastSet.split('-').map(x => parseInt(x.trim(), 10));
-          if (pts.length === 2 && !isNaN(pts[0]) && !isNaN(pts[1])) {
-            sa = pts[0];
-            sb = pts[1];
-          }
-        }
-        matchData.scoreA = sa;
-        matchData.scoreB = sb;
-        matchData.status = (m.status || 'PENDING').toUpperCase();
-        matchData.rawSets = cleanSets;
-        updateUI();
-      }
+      if (m) applySingleMatch(m);
     }
   }
 
@@ -940,11 +965,35 @@
     }, 500);
   }
 
-  // --- Initial Launch ---
+  // --- Smart Adaptive Auto-Refresh ---
+  let refreshTimerId = null;
+  function scheduleNextFetch() {
+    clearTimeout(refreshTimerId);
+    if (document.hidden) {
+      // พักการดึงข้อมูลเมื่อพับหน้าจอหรือจอดับ เพื่อประหยัดแบตเตอรี่และโควต้า
+      return;
+    }
+    // ดึงไวขึ้น (3 วิ) เมื่อเปิดกล้อง หรือ 6 วิเมื่อยังไม่เปิดกล้อง
+    const delay = cameraStream ? 3000 : 6000;
+    refreshTimerId = setTimeout(async () => {
+      await fetchLiveSchedule();
+      scheduleNextFetch();
+    }, delay);
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      fetchLiveSchedule();
+      scheduleNextFetch();
+    } else {
+      clearTimeout(refreshTimerId);
+    }
+  });
+
   window.addEventListener('DOMContentLoaded', () => {
     initCourtList();
     fetchLiveSchedule();
-    setInterval(fetchLiveSchedule, 3000);
+    scheduleNextFetch();
   });
 </script>
 
