@@ -1850,8 +1850,9 @@
 
     function openCourtCam(courtName, e) {
       if (e) e.stopPropagation();
-      const gitHubPagesUrl = 'https://jarupat7.github.io/APPSawasdeeCup/';
-      window.open(gitHubPagesUrl + '?court=' + encodeURIComponent(courtName), '_blank');
+      const isGh = window.location.hostname.includes('github.io');
+      const target = (isGh ? 'courtcam.html' : 'courtcam') + '?court=' + encodeURIComponent(courtName || 'C01');
+      window.open(target, '_blank');
     }
 
     function showCourtCamModal(courtName) {
@@ -1908,7 +1909,7 @@
               👉 หากต้องการเปิดกล้องบนมือถือ ให้แตะปุ่มด้านล่างเพื่อเปิดหน้ากล้องเต็มจอ (ไม่ติด Iframe):
             </div>
             <div style="margin-top:8px;">
-              <a href="https://sawasdee-cam.netlify.app/?court=${camModalCourt}" target="_blank" style="display:inline-flex; align-items:center; gap:6px; padding:8px 16px; background:#4338CA; color:white; border-radius:8px; font-weight:800; font-size:0.82rem; text-decoration:none;">
+              <a href="courtcam?court=${camModalCourt}" target="_blank" style="display:inline-flex; align-items:center; gap:6px; padding:8px 16px; background:#4338CA; color:white; border-radius:8px; font-weight:800; font-size:0.82rem; text-decoration:none;">
                 🚀 แตะที่นี่เพื่อเปิดหน้ากล้อง CourtCam เต็มจอ
               </a>
             </div>
