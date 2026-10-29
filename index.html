@@ -545,6 +545,77 @@
     });
   }
 
+  let realtimeChannel = null;
+  function initSupabaseRealtime() {
+    if (!sbClient) return;
+    try {
+      if (realtimeChannel) {
+        sbClient.removeChannel(realtimeChannel);
+      }
+      realtimeChannel = sbClient
+        .channel('courtcam-' + currentCourt)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, payload => {
+          const m = payload.new;
+          if (!m) return;
+          const courtStr = m.court || ('C' + (m.court_no < 10 ? '0' + m.court_no : m.court_no));
+          if (courtStr.toUpperCase() === currentCourt.toUpperCase()) {
+            applySupabaseMatch(m);
+            const badge = document.getElementById('syncBadge');
+            const badgeText = document.getElementById('syncStatusText');
+            if (badge) badge.className = 'live-badge';
+            if (badgeText) badgeText.textContent = '⚡ Realtime (' + currentCourt + ')';
+          }
+        })
+        .subscribe();
+    } catch (e) {
+      console.warn('CourtCam Realtime subscribe error:', e);
+    }
+  }
+
+  async function fetchFromSupabase() {
+    if (!sbClient) return false;
+    try {
+      const courtNum = parseInt(currentCourt.replace(/\D/g, ''), 10) || null;
+      let q = sbClient.from('matches').select('*').eq('day', 'DAY1');
+      if (courtNum) {
+        q = q.or(`court.eq.${currentCourt},court_no.eq.${courtNum}`);
+      } else {
+        q = q.eq('court', currentCourt);
+      }
+      const { data, error } = await q.order('updated_at', { ascending: false }).limit(1);
+      if (!error && Array.isArray(data) && data.length > 0) {
+        applySupabaseMatch(data[0]);
+        return true;
+      }
+    } catch (e) {
+      console.warn('CourtCam Supabase fetch error:', e);
+    }
+    return false;
+  }
+
+  function applySupabaseMatch(m) {
+    if (!m) return;
+    matchData.court = m.court || currentCourt;
+    matchData.matchId = m.match_no || '-';
+    matchData.category = (m.level ? m.level + ' ' : '') + (m.round_name || '');
+    matchData.teamA = m.team1 || 'รอผู้แข่งขัน A';
+    matchData.teamB = m.team2 || 'รอผู้แข่งขัน B';
+
+    let sa = Number(m.score_a_set1) || 0;
+    let sb = Number(m.score_b_set1) || 0;
+    if (m.score_a_set3 || m.score_b_set3) {
+      sa = Number(m.score_a_set3) || 0;
+      sb = Number(m.score_b_set3) || 0;
+    } else if (m.score_a_set2 || m.score_b_set2) {
+      sa = Number(m.score_a_set2) || 0;
+      sb = Number(m.score_b_set2) || 0;
+    }
+    matchData.scoreA = sa;
+    matchData.scoreB = sb;
+    matchData.status = (m.status || 'PENDING').toUpperCase();
+    updateUI();
+  }
+
   function changeCourt(newCourt) {
     currentCourt = newCourt;
     initSupabaseRealtime();
@@ -556,8 +627,16 @@
     const badge = document.getElementById('syncBadge');
     const badgeText = document.getElementById('syncStatusText');
 
+    // 1. Primary: Fast Supabase Realtime DB (< 50ms)
+    const sbOk = await fetchFromSupabase();
+    if (sbOk) {
+      if (badge) badge.className = 'live-badge';
+      if (badgeText) badgeText.textContent = 'ดึงข้อมูลสดสำเร็จ (' + currentCourt + ')';
+      return;
+    }
+
     try {
-      // 1. Primary: Fast Single Court API (Super Lightweight ~0.3 KB, Instant response)
+      // 2. Secondary: Fast Single Court API (Super Lightweight ~0.3 KB, Instant response)
       const fastUrl = GAS_URL + '?view=court&court=' + encodeURIComponent(currentCourt) + '&day=DAY1';
       const res = await fetch(fastUrl, { redirect: 'follow' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -578,10 +657,11 @@
       console.warn('Fast fetch fallback:', errGas);
       // Fallback 1: Full schedule from GAS
       try {
-        const resFull = await fetch(GAS_URL + '?view=schedule&day=DAY1', { redirect: 'follow' });
+        const resFull = await fetch(GAS_URL + '?action=matches&view=schedule&tab=DAY1&day=DAY1', { redirect: 'follow' });
         if (resFull.ok) {
-          const matches = await resFull.json();
-          if (Array.isArray(matches) && matches.length > 0) {
+          const respData = await resFull.json();
+          const matches = Array.isArray(respData) ? respData : (respData && respData.matches ? respData.matches : []);
+          if (matches.length > 0) {
             applyMatchFromSchedule(matches);
             badge.className = 'live-badge';
             badgeText.textContent = 'ดึงข้อมูลสดสำเร็จ (สำรอง)';
