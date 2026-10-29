@@ -582,7 +582,17 @@
       } else {
         q = q.eq('court', currentCourt);
       }
-      const { data, error } = await q.order('updated_at', { ascending: false }).limit(1);
+      // 1. Prefer active match
+      const { data: activeData } = await q.in('status', ['PLAYING', 'STANDBY', 'Now Playing', 'Standby']).order('updated_at', { ascending: false }).limit(1);
+      if (Array.isArray(activeData) && activeData.length > 0) {
+        applySupabaseMatch(activeData[0]);
+        return true;
+      }
+      // 2. Fallback to latest
+      let q2 = sbClient.from('matches').select('*').eq('day', 'DAY1');
+      if (courtNum) q2 = q2.or(`court.eq.${currentCourt},court_no.eq.${courtNum}`);
+      else q2 = q2.eq('court', currentCourt);
+      const { data, error } = await q2.order('updated_at', { ascending: false }).limit(1);
       if (!error && Array.isArray(data) && data.length > 0) {
         applySupabaseMatch(data[0]);
         return true;
@@ -1080,6 +1090,7 @@
 
   window.addEventListener('DOMContentLoaded', () => {
     initCourtList();
+    initSupabaseRealtime();
     fetchLiveSchedule();
     scheduleNextFetch();
   });
