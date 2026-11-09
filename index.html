@@ -660,7 +660,7 @@
       border-color: #F59E0B !important;
     }
     .draws-toolbar {
-      display: flex;
+      display: none;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
@@ -670,6 +670,9 @@
       border-radius: 12px;
       padding: 10px 14px;
       margin-bottom: 12px;
+    }
+    body.admin-unlocked .draws-toolbar {
+      display: flex;
     }
     .draws-file-badge {
       display: flex;
@@ -2103,6 +2106,38 @@
 
       syncDrawsWithLiveMatches();
       populateDrawsCategoryFilters();
+      initAdminSecretUnlock();
+    }
+
+    let logoTapCount = 0;
+    let logoTapTimer = null;
+    function initAdminSecretUnlock() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('admin') === '9999' || sessionStorage.getItem('sawasdee_admin_unlocked') === '1') {
+          document.body.classList.add('admin-unlocked');
+          sessionStorage.setItem('sawasdee_admin_unlocked', '1');
+        }
+      } catch (e) {}
+
+      const brandIconEl = document.getElementById('brandIcon');
+      if (brandIconEl) {
+        brandIconEl.style.cursor = 'pointer';
+        brandIconEl.addEventListener('click', () => {
+          logoTapCount++;
+          clearTimeout(logoTapTimer);
+          logoTapTimer = setTimeout(() => { logoTapCount = 0; }, 1800);
+          if (logoTapCount >= 5) {
+            logoTapCount = 0;
+            const pin = prompt('🔐 สำหรับเจ้าหน้าที่จัดการแข่งขัน (Admin PIN):');
+            if (pin === '9999') {
+              document.body.classList.add('admin-unlocked');
+              try { sessionStorage.setItem('sawasdee_admin_unlocked', '1'); } catch (e) {}
+              openDrawsUploadModal();
+            }
+          }
+        });
+      }
     }
 
     async function loadCloudOrLocalDraws() {
