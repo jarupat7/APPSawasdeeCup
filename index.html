@@ -559,45 +559,158 @@
 
     /* Bracket Tree View */
     .bracket-container {
+      position: relative;
       display: flex;
-      gap: 2rem;
+      align-items: flex-start;
+      gap: 3.75rem;
       overflow-x: auto;
-      padding: 1.5rem 0.5rem;
+      padding: 1.5rem 1rem 2.5rem 1rem;
+      min-height: 420px;
+    }
+    .bracket-svg-lines {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: visible;
     }
     .bracket-round {
+      position: relative;
+      z-index: 2;
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
-      min-width: 260px;
+      min-width: 275px;
+      width: 275px;
+      flex-shrink: 0;
     }
     .bracket-round-title {
       font-size: 1rem;
       font-weight: 800;
       color: var(--accent);
       text-align: center;
-      padding-bottom: 0.5rem;
+      padding: 0.45rem 0.75rem;
+      margin-bottom: 1.25rem;
+      background: var(--accent-light);
+      border-radius: 10px;
       border-bottom: 2px solid var(--accent);
+      letter-spacing: 0.03em;
+    }
+    .bracket-round-body {
+      position: relative;
+      width: 100%;
     }
     .bracket-match-card {
+      position: relative;
       background: var(--card);
-      border: 1px solid var(--border);
+      border: 1.5px solid #CBD5E1;
       border-radius: 12px;
-      padding: 0.75rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      padding: 0.7rem 0.8rem;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+      margin-bottom: 1rem;
+    }
+    .bracket-match-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 6px 18px rgba(15, 118, 110, 0.14);
+    }
+    .bracket-match-card.pair-end {
+      margin-bottom: 2.1rem;
     }
     .bracket-team {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 4px 6px;
+      padding: 5px 7px;
       border-radius: 6px;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
+      background: #F8FAFC;
+      border: 1px solid #F1F5F9;
     }
     .bracket-team.winner {
       font-weight: 800;
-      color: var(--accent);
+      color: var(--accent-dark);
       background: var(--accent-light);
+      border-color: #5EEAD4;
     }
+    .bracket-feeder-badge {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #0F766E;
+      background: #CCFBF1;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-left: 4px;
+    }
+    .bracket-match-card.is-bye-card {
+      background: #F8FAFC;
+      border: 1.5px dashed #CBD5E1;
+      box-shadow: none;
+      opacity: 0.88;
+    }
+    .bracket-match-card.search-hit {
+      border: 2px solid #F59E0B !important;
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.22), 0 8px 20px rgba(15, 23, 42, 0.12) !important;
+    }
+    .bracket-team.search-hit-slot {
+      background: #FEF3C7 !important;
+      border-color: #F59E0B !important;
+    }
+    .draws-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: linear-gradient(135deg, #F0FDFA, #ECFDF5);
+      border: 1px solid #99F6E4;
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+    }
+    .draws-file-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #0F766E;
+      flex-wrap: wrap;
+    }
+    .btn-upload-draws {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent);
+      color: #FFFFFF;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 9px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(15, 118, 110, 0.25);
+      transition: all 0.2s;
+    }
+    .btn-upload-draws:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+    .day-pill-mini {
+      display: inline-block;
+      font-size: 0.66rem;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: #E0F2FE;
+      color: #0369A1;
+      margin-right: 4px;
+    }
+    .day-pill-mini.DAY2 { background: #FEF3C7; color: #B45309; }
+    .day-pill-mini.DAY3 { background: #FCE7F3; color: #BE185D; }
 
     /* Round Robin Tables */
     .rr-grid {
@@ -728,6 +841,8 @@
 <body>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="draws_data.js"></script>
   <script>
     const SUPABASE_URL = "https://vfpcexqodtdesaxbxftw.supabase.co";
     const SUPABASE_KEY = "sb_publishable_afa4-SGWTEjLwj3cc5hfrg_2kLeV2CZ";
@@ -838,22 +953,93 @@
 
     <!-- 3. Tab: Tournament Brackets (Knockout Tree) -->
     <div id="tab-bracket" class="tab-content">
+      <div class="draws-toolbar">
+        <div class="draws-file-badge" id="drawsFileBadge">
+          <span>📂</span>
+          <span id="drawsFileNameText">Draws_Kizuna_Sawasdee_cup_2025.XLSX (ครบทุกวัน DAY 1–3)</span>
+          <span style="background:#CCFBF1; color:#115E59; padding:2px 8px; border-radius:999px; font-size:0.74rem;" id="drawsCountBadge">92 สาย KO • 2 กลุ่ม RR</span>
+          <span style="color:#059669; font-size:0.76rem;" id="drawsLiveSyncBadge">⚡ ซิงค์ผลสดอัตโนมัติ</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <button type="button" class="btn-upload-draws" onclick="openDrawsUploadModal()">
+            <span>📤</span> <span id="btnUploadDrawsLabel">อัปโหลดไฟล์สาย (.xlsx)</span>
+          </button>
+        </div>
+      </div>
+
       <div class="filters-bar">
-        <select id="bracketLevelFilter" onchange="renderBracket()">
+        <select id="bracketLevelFilter" onchange="renderBracket()" style="min-width:220px; font-weight:700;">
           <option value="">-- Select Category to View Bracket --</option>
         </select>
+        <input type="text" id="bracketSearch" class="search-input" placeholder="🔍 ค้นหาชื่อนักกีฬา หรือ สโมสร ในสายการแข่งขัน..." onkeyup="onBracketSearchInput()">
+        <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.84rem; font-weight:700; color:var(--text); background:#FFFFFF; padding:7px 12px; border:1px solid var(--border); border-radius:10px; cursor:pointer; user-select:none; white-space:nowrap;">
+          <input type="checkbox" id="chkShowByes" checked onchange="renderBracket()" style="width:16px; height:16px; accent-color:var(--accent); cursor:pointer;">
+          <span id="lblShowByes">แสดงตำแหน่ง Bye (Full Draw)</span>
+        </label>
       </div>
+      <div id="bracketSearchNotice" style="display:none; margin-bottom:10px; padding:8px 12px; background:#FEF3C7; border:1px solid #FCD34D; border-radius:10px; font-size:0.82rem; font-weight:700; color:#92400E;"></div>
       <div id="bracketContainer" class="card" style="padding:1.5rem; overflow-x:auto;"></div>
     </div>
 
     <!-- 4. Tab: Round Robin Standings -->
     <div id="tab-rr" class="tab-content">
+      <div class="draws-toolbar">
+        <div class="draws-file-badge">
+          <span>🏆</span>
+          <span id="rrFileNameText">ตารางคะแนนและแมตช์รอบแบ่งกลุ่ม (Round Robin ครบทุกวัน)</span>
+          <span style="color:#059669; font-size:0.76rem;">⚡ คำนวณคะแนนสดอัตโนมัติ</span>
+        </div>
+        <button type="button" class="btn-upload-draws" onclick="openDrawsUploadModal()">
+          <span>📤</span> <span>อัปโหลดไฟล์สาย (.xlsx)</span>
+        </button>
+      </div>
+
       <div class="filters-bar">
-        <select id="rrLevelFilter" onchange="renderRR()">
+        <select id="rrLevelFilter" onchange="renderRR()" style="min-width:220px; font-weight:700;">
           <option value="">-- All RR Categories --</option>
         </select>
       </div>
       <div id="rrContainer"></div>
+    </div>
+
+    <!-- Draws (.xlsx) Upload Modal (Smart Hybrid) -->
+    <div id="drawsUploadModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(15,23,42,0.78); backdrop-filter:blur(5px); align-items:center; justify-content:center; padding:14px;">
+      <div style="background:#FFFFFF; border:1px solid #CBD5E1; border-radius:18px; width:100%; max-width:560px; max-height:92vh; overflow-y:auto; padding:20px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.45); display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #E2E8F0; padding-bottom:10px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:1.5rem;">📤</span>
+            <div>
+              <div style="font-weight:800; font-size:1.08rem; color:#0F172A;">อัปโหลดไฟล์สายการแข่งขัน (Draws .xlsx)</div>
+              <div style="font-size:0.78rem; color:#64748B;">รองรับไฟล์ Excel ที่ Export จากโปรแกรม Badminton Tournament Planner</div>
+            </div>
+          </div>
+          <button type="button" onclick="closeDrawsUploadModal()" style="background:#F1F5F9; border:1px solid #CBD5E1; color:#475569; width:34px; height:34px; border-radius:8px; font-size:1.05rem; font-weight:800; cursor:pointer;">✕</button>
+        </div>
+
+        <div style="background:#F0FDFA; border:1px dashed #14B8A6; border-radius:12px; padding:18px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:10px;">
+          <div style="font-size:2.2rem;">📊</div>
+          <div style="font-weight:800; font-size:0.95rem; color:#0F766E;">เลือกไฟล์ Excel สายการแข่งขัน (.xlsx / .xls)</div>
+          <div style="font-size:0.8rem; color:#475569; line-height:1.45;">
+            ระบบจะอ่านทุกชีตในไฟล์ให้อัตโนมัติ ทั้งสาย <b>Knockout Brackets</b> และ <b>Round Robin</b><br>
+            พร้อมซิงค์คะแนนสดและผู้ชนะจากตารางแข่งขัน DAY 1–DAY 3 ทันที
+          </div>
+          <label for="drawsXlsxInput" style="margin-top:4px; cursor:pointer; background:#0F766E; color:#FFFFFF; padding:10px 20px; border-radius:10px; font-weight:800; font-size:0.9rem; display:inline-flex; align-items:center; gap:8px; box-shadow:0 4px 12px rgba(15,118,110,0.25);">
+            <span>📂 เลือกไฟล์ Draws.xlsx จากเครื่อง...</span>
+          </label>
+          <input type="file" id="drawsXlsxInput" accept=".xlsx,.xls" onchange="handleDrawsFileSelected(event)" hidden>
+        </div>
+
+        <div id="drawsUploadStatus" style="display:none; padding:12px 14px; border-radius:10px; font-size:0.85rem; font-weight:700; line-height:1.5;"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; border-top:1px solid #E2E8F0; padding-top:12px; flex-wrap:wrap;">
+          <button type="button" onclick="resetToBundledDraws()" style="background:#F8FAFC; border:1px solid #CBD5E1; color:#475569; padding:8px 12px; border-radius:8px; font-size:0.78rem; font-weight:700; cursor:pointer;">
+            🔄 คืนค่าไฟล์เริ่มต้นของทัวร์นาเมนต์
+          </button>
+          <button type="button" onclick="closeDrawsUploadModal()" style="background:#0F172A; color:#FFFFFF; border:none; padding:8px 18px; border-radius:8px; font-size:0.84rem; font-weight:800; cursor:pointer;">
+            ปิดหน้าต่าง
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- CourtCam In-App Video Recorder Modal -->
@@ -927,6 +1113,10 @@
     let scheduleData = [];
     let rrData = [];
     let bracketData = {};
+    let rawDrawsData = (typeof window !== 'undefined' && window.DEFAULT_DRAWS_DATA)
+      ? window.DEFAULT_DRAWS_DATA
+      : { file_name: 'Draws.xlsx', updated_at: '', brackets: {}, rr: [] };
+    let allDaysLiveMatches = [];
     let currentTab = 'courts';
 
     // Bilingual Vocabulary
@@ -1024,8 +1214,11 @@
         console.warn('Cache load error:', cacheErr);
       }
 
-      // 2. Start Supabase Realtime Listener (Disabled per user request - no auto background activity)
-      // initSupabaseRealtime();
+      // 1.2 Initialize Draws (Brackets & Round Robin) immediately from bundled/cached Draws.xlsx
+      initDrawsImmediate();
+
+      // 2. Start Supabase Realtime Listener for instant live updates
+      initSupabaseRealtime();
 
       try {
         // Fetch Supabase announcement
@@ -1053,7 +1246,8 @@
         // Load active schedule immediately
         await reloadAllData();
 
-        // No auto background polling (manual load on visit or tab change only)
+        // Auto refresh every 15s via fast Supabase query
+        setInterval(autoRefresh, 15000);
       } catch (e) {
         console.error('Init error:', e);
       }
@@ -1091,7 +1285,14 @@
           })
           .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, payload => {
             console.log('⚡ [Supabase Realtime] Announcement Update:', payload);
-            if (payload.new && payload.new.message) {
+            if (payload.new && Number(payload.new.id) === 999999 && payload.new.message) {
+              try {
+                const cloudDraws = JSON.parse(payload.new.message);
+                if (cloudDraws && (cloudDraws.brackets || cloudDraws.rr)) {
+                  applyNewDrawsPayload(cloudDraws, false);
+                }
+              } catch (e) {}
+            } else if (payload.new && payload.new.is_active && payload.new.message) {
               document.getElementById('tickerMsg').innerText = payload.new.message;
             }
           })
@@ -1182,12 +1383,49 @@
 
     async function reloadAllData() {
       await loadSchedule();
-      // Lazy load background data for inactive tabs
+      await fetchAllDaysLiveMatches();
+      await loadCloudOrLocalDraws();
+      syncDrawsWithLiveMatches();
       if (currentTab === 'bracket') {
-        loadBracket();
+        renderBracket();
       } else if (currentTab === 'rr') {
-        loadRR();
+        renderRR();
       }
+    }
+
+    function mapSupabaseMatchRow(m) {
+      const teamA = m.team1 || [m.team_a_player1, m.team_a_player2].filter(Boolean).join(' + ') + (m.team_a_club ? ` (${m.team_a_club})` : '');
+      const teamB = m.team2 || [m.team_b_player1, m.team_b_player2].filter(Boolean).join(' + ') + (m.team_b_club ? ` (${m.team_b_club})` : '');
+      let rawSets = m.sets_display || '';
+      if (!rawSets && (m.score_a_set1 || m.score_b_set1)) {
+        const sets = [`${m.score_a_set1 || 0}-${m.score_b_set1 || 0}`];
+        if (m.score_a_set2 || m.score_b_set2) sets.push(`${m.score_a_set2 || 0}-${m.score_b_set2 || 0}`);
+        if (m.score_a_set3 || m.score_b_set3) sets.push(`${m.score_a_set3 || 0}-${m.score_b_set3 || 0}`);
+        rawSets = sets.join(', ');
+      }
+      const rawSt = String(m.status || 'waiting').toUpperCase();
+      let normSt = 'waiting';
+      if (rawSt === 'FINISH' || rawSt === 'FINISHED' || rawSt === 'DONE') normSt = 'done';
+      else if (rawSt === 'PLAYING' || rawSt === 'NOW PLAYING') normSt = 'playing';
+      else if (rawSt === 'STANDBY') normSt = 'standby';
+
+      return {
+        day: m.day || '',
+        match_id: String(m.match_no || '').replace(/^0+/, '') || m.match_no,
+        court: m.court || (m.court_no ? ('C' + (m.court_no < 10 ? '0' + m.court_no : m.court_no)) : ''),
+        level: m.level || m.event || '',
+        round: m.round_name || m.round || '',
+        time: m.time_est || m.time || '',
+        team_a: teamA,
+        team_b: teamB,
+        status: normSt,
+        raw_status: rawSt,
+        tv_route: normSt === 'playing' ? 'NO1' : (normSt === 'standby' ? 'NO2' : 'OFF'),
+        score_a: m.score_a_set1 || m.score_a || m.sets_a || 0,
+        score_b: m.score_b_set1 || m.score_b || m.sets_b || 0,
+        raw_sets_display: rawSets,
+        winner: m.winner
+      };
     }
 
     async function fetchSupabaseSchedule(day) {
@@ -1197,40 +1435,73 @@
           .from('matches')
           .select('*')
           .eq('day', day || currentDay)
-          .order('court_no', { ascending: true });
+          .order('id', { ascending: true });
 
         if (!error && Array.isArray(data) && data.length > 0) {
-          return data.map(m => {
-            const teamA = m.team1 || [m.team_a_player1, m.team_a_player2].filter(Boolean).join(' + ') + (m.team_a_club ? ` (${m.team_a_club})` : '');
-            const teamB = m.team2 || [m.team_b_player1, m.team_b_player2].filter(Boolean).join(' + ') + (m.team_b_club ? ` (${m.team_b_club})` : '');
-            let rawSets = m.sets_display || '';
-            if (!rawSets && (m.score_a_set1 || m.score_b_set1)) {
-              const sets = [`${m.score_a_set1 || 0}-${m.score_b_set1 || 0}`];
-              if (m.score_a_set2 || m.score_b_set2) sets.push(`${m.score_a_set2 || 0}-${m.score_b_set2 || 0}`);
-              if (m.score_a_set3 || m.score_b_set3) sets.push(`${m.score_a_set3 || 0}-${m.score_b_set3 || 0}`);
-              rawSets = sets.join(', ');
-            }
-            return {
-              match_id: m.match_no,
-              court: m.court || (m.court_no ? ('C' + (m.court_no < 10 ? '0' + m.court_no : m.court_no)) : ''),
-              level: m.level || m.event || '',
-              round: m.round_name || m.round || '',
-              time: m.time_est || m.time || '',
-              team_a: teamA,
-              team_b: teamB,
-              status: (m.status || 'standby').toLowerCase(),
-              tv_route: (m.status === 'PLAYING' || m.status === 'playing') ? 'NO1' : ((m.status === 'STANDBY' || m.status === 'standby') ? 'NO2' : 'OFF'),
-              score_a: m.sets_a || m.score_a || 0,
-              score_b: m.sets_b || m.score_b || 0,
-              raw_sets_display: rawSets,
-              winner: m.winner
-            };
-          });
+          return data.map(mapSupabaseMatchRow);
         }
       } catch (err) {
         console.warn('Supabase fetchSchedule error:', err);
       }
       return null;
+    }
+
+    // Fetch active/finished matches across ALL days (DAY1, DAY2, DAY3) for Smart Hybrid Draws Sync
+    async function fetchAllDaysLiveMatches() {
+      const merged = [];
+      if (sbClient) {
+        try {
+          const { data, error } = await sbClient
+            .from('matches')
+            .select('*')
+            .neq('status', 'WAITING')
+            .order('id', { ascending: true });
+          if (!error && Array.isArray(data)) {
+            data.forEach(r => merged.push(mapSupabaseMatchRow(r)));
+          }
+        } catch (err) {
+          console.warn('fetchAllDaysLiveMatches supabase warning:', err);
+        }
+      }
+      // Also try local Node server /api/state if running on local Wi-Fi server
+      if (!window.location.hostname.includes('github.io') && !window.location.hostname.includes('script.googleusercontent.com')) {
+        try {
+          const res = await fetch('/api/state', { cache: 'no-store' });
+          if (res.ok) {
+            const st = await res.json();
+            if (st && st.matches) {
+              Object.values(st.matches).forEach(m => {
+                const rawSt = String(m.status || '').toUpperCase();
+                const isD = ['FINISHED', 'FINISH', 'DONE', 'BYE', 'RETIRED', 'W.O.', 'WO', 'W/O'].includes(rawSt);
+                const isP = rawSt === 'NOW PLAYING' || rawSt === 'PLAYING';
+                const setsArr = Array.isArray(m.sets) ? m.sets : [];
+                if (isD || isP || setsArr.length > 0) {
+                  merged.push({
+                    match_id: String(m.nr || '').replace(/^0+/, '') || String(m.nr || ''),
+                    court: m.court ? (String(m.court).startsWith('C') || String(m.court).startsWith('VIP') ? m.court : ('C' + String(m.court).padStart(2, '0'))) : '',
+                    level: m.type || '',
+                    round: m.round || '',
+                    time: m.time || '',
+                    team_a: m.team1 || [m.p1a, m.p1b].filter(Boolean).join(' + '),
+                    team_b: m.team2 || [m.p2a, m.p2b].filter(Boolean).join(' + '),
+                    status: isD ? 'done' : (isP ? 'playing' : 'waiting'),
+                    raw_status: rawSt,
+                    tv_route: isP ? 'NO1' : 'OFF',
+                    score_a: (setsArr[0] && setsArr[0][0]) || 0,
+                    score_b: (setsArr[0] && setsArr[0][1]) || 0,
+                    raw_sets_display: setsArr.map(s => `${s[0]}-${s[1]}`).join(', '),
+                    winner: m.winner === 1 ? 'TEAM1' : (m.winner === 2 ? 'TEAM2' : null)
+                  });
+                }
+              });
+            }
+          }
+        } catch (e) {}
+      }
+      if (merged.length > 0) {
+        allDaysLiveMatches = merged;
+      }
+      return allDaysLiveMatches;
     }
 
     async function loadSchedule() {
@@ -1266,21 +1537,22 @@
       extractLevels();
       renderCourts();
       renderSchedule();
+
+      // Also sync live match updates into Brackets & Round Robin
+      syncDrawsWithLiveMatches();
+      if (currentTab === 'bracket') renderBracket();
+      if (currentTab === 'rr') renderRR();
     }
 
     async function loadRR() {
-      const data = await fetchApi('rr');
-      if (Array.isArray(data)) {
-        rrData = data;
-      }
+      await fetchAllDaysLiveMatches();
+      syncDrawsWithLiveMatches();
       renderRR();
     }
 
     async function loadBracket() {
-      const data = await fetchApi('bracket');
-      if (data && typeof data === 'object') {
-        bracketData = data;
-      }
+      await fetchAllDaysLiveMatches();
+      syncDrawsWithLiveMatches();
       renderBracket();
     }
 
@@ -1289,26 +1561,12 @@
       if (isRefreshing) return;
       isRefreshing = true;
       try {
-        if (currentTab === 'courts' || currentTab === 'schedule') {
-          const fresh = await fetchApi('schedule');
-          const freshList = Array.isArray(fresh) ? fresh : (fresh && Array.isArray(fresh.matches) ? fresh.matches : []);
-          if (freshList.length > 0) {
-            scheduleData = freshList;
-            if (currentTab === 'courts') renderCourts();
-            if (currentTab === 'schedule') renderSchedule();
-          }
-        } else if (currentTab === 'bracket') {
-          const freshB = await fetchApi('bracket');
-          if (freshB && typeof freshB === 'object') {
-            bracketData = freshB;
-            renderBracket();
-          }
-        } else if (currentTab === 'rr') {
-          const freshRR = await fetchApi('rr');
-          if (Array.isArray(freshRR)) {
-            rrData = freshRR;
-            renderRR();
-          }
+        await loadSchedule();
+        if (currentTab === 'bracket' || currentTab === 'rr') {
+          await fetchAllDaysLiveMatches();
+          syncDrawsWithLiveMatches();
+          if (currentTab === 'bracket') renderBracket();
+          if (currentTab === 'rr') renderRR();
         }
       } catch (err) {
         console.warn('autoRefresh error:', err);
@@ -1355,6 +1613,7 @@
 
       renderCourts();
       renderSchedule();
+      renderBracket();
       renderRR();
     }
 
@@ -1365,10 +1624,14 @@
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       document.getElementById(`tab-${tabId}`).classList.add('active');
 
-      if (tabId === 'bracket' && (!bracketData || Object.keys(bracketData).length === 0)) {
-        await loadBracket();
-      } else if (tabId === 'rr' && (!rrData || rrData.length === 0)) {
-        await loadRR();
+      if (tabId === 'bracket') {
+        syncDrawsWithLiveMatches();
+        renderBracket();
+        fetchAllDaysLiveMatches().then(() => { syncDrawsWithLiveMatches(); renderBracket(); });
+      } else if (tabId === 'rr') {
+        syncDrawsWithLiveMatches();
+        renderRR();
+        fetchAllDaysLiveMatches().then(() => { syncDrawsWithLiveMatches(); renderRR(); });
       } else {
         autoRefresh();
       }
@@ -1387,13 +1650,51 @@
       const levels = [...set].sort();
       const opts = levels.map(l => `<option value="${l}">${l}</option>`).join('');
 
+      const curCourtLv = document.getElementById('courtLevelFilter').value;
+      const curSchLv = document.getElementById('schLevelFilter').value;
       document.getElementById('courtLevelFilter').innerHTML = `<option value="">${i18n[currentLang].allLevels}</option>` + opts;
       document.getElementById('schLevelFilter').innerHTML = `<option value="">${i18n[currentLang].allLevels}</option>` + opts;
-      document.getElementById('bracketLevelFilter').innerHTML = `<option value="">-- Select Category --</option>` + opts;
-      document.getElementById('rrLevelFilter').innerHTML = `<option value="">-- All RR Categories --</option>` + opts;
+      if (curCourtLv && levels.includes(curCourtLv)) document.getElementById('courtLevelFilter').value = curCourtLv;
+      if (curSchLv && levels.includes(curSchLv)) document.getElementById('schLevelFilter').value = curSchLv;
 
-      if (levels.length > 0 && !document.getElementById('bracketLevelFilter').value) {
-        document.getElementById('bracketLevelFilter').value = levels[0];
+      populateDrawsCategoryFilters();
+    }
+
+    function populateDrawsCategoryFilters() {
+      const koLevels = Object.keys(bracketData || {}).sort();
+      const bSelect = document.getElementById('bracketLevelFilter');
+      if (bSelect && koLevels.length > 0) {
+        const prevB = bSelect.value;
+        bSelect.innerHTML = koLevels.map(l => {
+          const totalM = (bracketData[l] || []).filter(m => !m.is_bye).length;
+          return `<option value="${l}">${l} (${totalM} แมตช์)</option>`;
+        }).join('');
+        if (prevB && koLevels.includes(prevB)) {
+          bSelect.value = prevB;
+        } else {
+          bSelect.value = koLevels[0];
+        }
+      }
+
+      const rrLevels = (rrData || []).map(g => g.level).filter(Boolean);
+      const rSelect = document.getElementById('rrLevelFilter');
+      if (rSelect) {
+        const prevR = rSelect.value;
+        rSelect.innerHTML = `<option value="">-- ทุกกลุ่ม Round Robin (${rrLevels.length} รุ่น) --</option>` +
+          rrLevels.map(l => `<option value="${l}">${l}</option>`).join('');
+        if (prevR && rrLevels.includes(prevR)) {
+          rSelect.value = prevR;
+        }
+      }
+
+      // Update file info badge
+      const fileTextEl = document.getElementById('drawsFileNameText');
+      const countBadgeEl = document.getElementById('drawsCountBadge');
+      if (fileTextEl && rawDrawsData) {
+        fileTextEl.innerText = `${rawDrawsData.file_name || 'Draws.xlsx'} (ครบทุกวัน DAY 1–3)`;
+      }
+      if (countBadgeEl) {
+        countBadgeEl.innerText = `${koLevels.length} สาย KO • ${rrLevels.length} กลุ่ม RR`;
       }
     }
 
@@ -1503,7 +1804,7 @@
       `;
     }
 
-    // Render Court Status Cards (Now Playing + Up Next)
+    // Render Court Status Cards (Now Playing / Current on Court + 1 Up Next auto-pulled)
     function renderCourts() {
       const container = document.getElementById('courtGrid');
       if (!container) return;
@@ -1512,13 +1813,35 @@
       const lFilter = document.getElementById('courtLevelFilter')?.value || '';
       const dict = i18n[currentLang];
 
-      const courtPlayingMap = {};
-      const courtNextMap = {};
+      const courtQueueMap = {};
 
       (scheduleData || []).forEach(m => {
         const c = (m.court || '').toUpperCase();
-        if ((m.status === 'playing' || m.tv_route === 'NO1') && !courtPlayingMap[c]) courtPlayingMap[c] = m;
-        else if ((m.status === 'standby' || m.tv_route === 'NO2') && !courtNextMap[c]) courtNextMap[c] = m;
+        if (!c) return;
+        const st = (m.status || '').toLowerCase();
+        const rSt = (m.raw_status || '').toUpperCase();
+        if (st === 'done' || st === 'finished' || rSt === 'FINISH' || rSt === 'FINISHED' || rSt === 'DONE') {
+          return; // ข้ามแมตช์ที่แข่งจบแล้ว
+        }
+        if (!courtQueueMap[c]) courtQueueMap[c] = [];
+        courtQueueMap[c].push(m);
+      });
+
+      const courtPlayingMap = {};
+      const courtNextMap = {};
+
+      Object.keys(courtQueueMap).forEach(c => {
+        const q = courtQueueMap[c];
+        // หากมีแมตช์ที่สถานะเป็น playing ให้ขึ้นเป็นแมตช์หลักก่อน ถ้าไม่มีให้ดึงแมตช์ลำดับแรกของสนามนั้นขึ้นเป็นแมตช์ประจำสนามอัตโนมัติ
+        const playIdx = q.findIndex(m => m.status === 'playing' || m.tv_route === 'NO1');
+        if (playIdx > -1) {
+          courtPlayingMap[c] = q[playIdx];
+          const remaining = q.filter((_, idx) => idx !== playIdx);
+          if (remaining.length > 0) courtNextMap[c] = remaining[0];
+        } else if (q.length > 0) {
+          courtPlayingMap[c] = q[0];
+          if (q.length > 1) courtNextMap[c] = q[1];
+        }
       });
 
       const defaultCourts = [];
@@ -1538,8 +1861,9 @@
         let playingHtml = '';
         if (pMatch) {
           const scP = parseMatchScore(pMatch);
-          const scorePillA = scP ? `<div class="cv-score-tag a ${scP.ptsA > scP.ptsB ? 'leading' : ''}">${scP.ptsA}</div>` : '';
-          const scorePillB = scP ? `<div class="cv-score-tag b ${scP.ptsB > scP.ptsA ? 'leading' : ''}">${scP.ptsB}</div>` : '';
+          const hasPts = scP && (scP.ptsA > 0 || scP.ptsB > 0);
+          const scorePillA = hasPts ? `<div class="cv-score-tag a ${scP.ptsA > scP.ptsB ? 'leading' : ''}">${scP.ptsA}</div>` : '';
+          const scorePillB = hasPts ? `<div class="cv-score-tag b ${scP.ptsB > scP.ptsA ? 'leading' : ''}">${scP.ptsB}</div>` : '';
           const setsSub = scP && scP.rawSets ? `<span class="cv-sets-sub">${scP.rawSets}</span>` : '';
 
           playingHtml = `
@@ -1564,7 +1888,7 @@
                 </div>
               </div>
               <button type="button" class="btn-courtcam-link" onclick="openCourtCam('${cName}', event)" style="margin-top:8px; width:100%; display:flex; align-items:center; justify-content:center; gap:6px; padding:6px 10px; background:#042F2E; color:#34D399; border:1px solid #059669; border-radius:8px; font-weight:800; font-size:0.75rem; cursor:pointer;">
-                📹 อัดคลิปพร้อมสกอร์ (CourtCam)
+                📹 บันทึกคลิปสนาม (CourtCam)
               </button>
             </div>
           `;
@@ -1573,8 +1897,9 @@
         let nextHtml = '';
         if (nMatch) {
           const scN = parseMatchScore(nMatch);
-          const scorePillA = scN ? `<div class="cv-score-tag a ${scN.ptsA > scN.ptsB ? 'leading' : ''}">${scN.ptsA}</div>` : '';
-          const scorePillB = scN ? `<div class="cv-score-tag b ${scN.ptsB > scN.ptsA ? 'leading' : ''}">${scN.ptsB}</div>` : '';
+          const hasPtsN = scN && (scN.ptsA > 0 || scN.ptsB > 0);
+          const scorePillA = hasPtsN ? `<div class="cv-score-tag a ${scN.ptsA > scN.ptsB ? 'leading' : ''}">${scN.ptsA}</div>` : '';
+          const scorePillB = hasPtsN ? `<div class="cv-score-tag b ${scN.ptsB > scN.ptsA ? 'leading' : ''}">${scN.ptsB}</div>` : '';
           const setsSub = scN && scN.rawSets ? `<span class="cv-sets-sub">${scN.rawSets}</span>` : '';
 
           nextHtml = `
@@ -1677,14 +2002,14 @@
         let scoreTagB = '';
         let vsSub = '';
 
-        if (sc) {
-          const displayScoreA = sc.isDone ? sc.scoreA : sc.ptsA;
-          const displayScoreB = sc.isDone ? sc.scoreB : sc.ptsB;
+        if (sc && (sc.ptsA > 0 || sc.ptsB > 0 || sc.isDone)) {
+          const displayScoreA = sc.ptsA;
+          const displayScoreB = sc.ptsB;
           const isWinnerA = displayScoreA > displayScoreB;
           const isWinnerB = displayScoreB > displayScoreA;
           scoreTagA = `<span class="sch-score-tag ${isWinnerA ? 'winner' : ''}">${displayScoreA}</span>`;
           scoreTagB = `<span class="sch-score-tag ${isWinnerB ? 'winner' : ''}">${displayScoreB}</span>`;
-          if (sc.rawSets) {
+          if (sc.rawSets && sc.rawSets.includes(',')) {
             vsSub = `<span class="sch-sets-text">${sc.rawSets}</span>`;
           }
         }
@@ -1720,114 +2045,1356 @@
       }).join('');
     }
 
-    // Render Knockout Bracket
+    // =========================================================================
+    // SMART HYBRID DRAWS ENGINE (Upload Draws.xlsx + Auto-Sync Live Scores)
+    // =========================================================================
+
+    function normDrawsLevel(lv) {
+      return String(lv || '')
+        .replace(/-\s*Main\s*Draw$/i, '')
+        .replace(/\s+/g, '')
+        .toUpperCase();
+    }
+
+    function cleanBracketCoreName(raw) {
+      if (!raw) return '';
+      return String(raw)
+        .replace(/^\[\d+(?:\/\d+)?\]\s*/, '')
+        .replace(/\s*[\(\（].*?[\)\）]\s*/g, '')
+        .replace(/[\/\+,\n]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toUpperCase();
+    }
+
+    function getSortedPlayerTokens(raw) {
+      if (!raw) return '';
+      const s = String(raw)
+        .replace(/^\[\d+(?:\/\d+)?\]\s*/, '')
+        .replace(/\s*[\(\（].*?[\)\）]\s*/g, '')
+        .toUpperCase();
+      const parts = s.split(/[\+\/\n]+/).map(x => x.replace(/\s+/g, ' ').trim()).filter(Boolean);
+      parts.sort();
+      return parts.join(' + ');
+    }
+
+    function isUnresolvedSlot(teamStr) {
+      if (!teamStr) return true;
+      const u = String(teamStr).trim().toUpperCase();
+      return u === 'TBD' || u === 'BYE' || u.startsWith('BYE ') || u.startsWith('WINNER #') || u.startsWith('W#');
+    }
+
+    function initDrawsImmediate() {
+      // 1. Check localStorage cache first
+      try {
+        const cachedStr = localStorage.getItem('sawasdee_draws_v1');
+        if (cachedStr) {
+          const parsed = JSON.parse(cachedStr);
+          if (parsed && parsed.brackets && Object.keys(parsed.brackets).length > 0) {
+            rawDrawsData = parsed;
+          }
+        }
+      } catch (e) {}
+
+      // 2. Fallback to window.DEFAULT_DRAWS_DATA (bundled from Draws_Kizuna_Sawasdee_cup_2025.XLSX)
+      if ((!rawDrawsData || !rawDrawsData.brackets || Object.keys(rawDrawsData.brackets).length === 0) && window.DEFAULT_DRAWS_DATA) {
+        rawDrawsData = window.DEFAULT_DRAWS_DATA;
+      }
+
+      syncDrawsWithLiveMatches();
+      populateDrawsCategoryFilters();
+    }
+
+    async function loadCloudOrLocalDraws() {
+      // 1. Try local Node server (/api/draws) if running locally
+      if (!window.location.hostname.includes('github.io') && !window.location.hostname.includes('script.googleusercontent.com')) {
+        try {
+          const res = await fetch('/api/draws', { cache: 'no-store' });
+          if (res.ok) {
+            const j = await res.json();
+            if (j && j.ok && j.data && j.data.brackets && Object.keys(j.data.brackets).length > 0) {
+              applyNewDrawsPayload(j.data, false);
+              return;
+            }
+          }
+        } catch (e) {}
+      }
+
+      // 2. Try Supabase announcements id=999999 (is_active=false)
+      if (sbClient) {
+        try {
+          const { data, error } = await sbClient
+            .from('announcements')
+            .select('message')
+            .eq('id', 999999)
+            .limit(1);
+          if (!error && Array.isArray(data) && data.length > 0 && data[0].message) {
+            const parsed = JSON.parse(data[0].message);
+            if (parsed && parsed.brackets && Object.keys(parsed.brackets).length > 0) {
+              applyNewDrawsPayload(parsed, false);
+            }
+          }
+        } catch (err) {
+          console.warn('loadCloudOrLocalDraws supabase warning:', err);
+        }
+      }
+    }
+
+    function applyNewDrawsPayload(payload, persistToLocalStorage = true) {
+      if (!payload || typeof payload !== 'object') return;
+      rawDrawsData = {
+        file_name: payload.file_name || 'Draws.xlsx',
+        updated_at: payload.updated_at || new Date().toISOString(),
+        brackets: payload.brackets || {},
+        rr: payload.rr || []
+      };
+      if (persistToLocalStorage) {
+        try {
+          localStorage.setItem('sawasdee_draws_v1', JSON.stringify(rawDrawsData));
+        } catch (e) {}
+      }
+      syncDrawsWithLiveMatches();
+      populateDrawsCategoryFilters();
+      if (currentTab === 'bracket') renderBracket();
+      if (currentTab === 'rr') renderRR();
+    }
+
+    function syncDrawsWithLiveMatches() {
+      if (!rawDrawsData) return;
+
+      // Deep clone rawDrawsData so live overlays never mutate raw template slots permanently
+      const clonedBrackets = {};
+      Object.keys(rawDrawsData.brackets || {}).forEach(lv => {
+        clonedBrackets[lv] = (rawDrawsData.brackets[lv] || []).map(m => Object.assign({}, m));
+      });
+      const clonedRR = (rawDrawsData.rr || []).map(g => ({
+        level: g.level,
+        pool: g.pool,
+        standings: (g.standings || []).map(s => Object.assign({}, s)),
+        matches: (g.matches || []).map(m => Object.assign({}, m))
+      }));
+
+      // Combine all known live/schedule matches (allDaysLiveMatches + current scheduleData)
+      const combinedLive = [];
+      const seenLiveKeys = new Set();
+      const pushLive = (m) => {
+        if (!m) return;
+        const k = `${m.day || ''}_${m.match_id || ''}_${m.level || ''}_${m.team_a || ''}`;
+        if (seenLiveKeys.has(k)) return;
+        seenLiveKeys.add(k);
+        combinedLive.push(m);
+      };
+      (allDaysLiveMatches || []).forEach(pushLive);
+      (scheduleData || []).forEach(pushLive);
+
+      // Build lookup indices:
+      // 1) byLevelAndPair: normLevel + '|' + [tokA, tokB].sort().join('||')
+      // 2) byLevelAndNo:   normLevel + '|' + cleanMatchNo
+      const byLevelAndPair = {};
+      const byLevelAndNo = {};
+
+      combinedLive.forEach(m => {
+        const nLv = normDrawsLevel(m.level);
+        if (!nLv) return;
+        const tokA = getSortedPlayerTokens(m.team_a);
+        const tokB = getSortedPlayerTokens(m.team_b);
+        if (tokA && tokB && !isUnresolvedSlot(m.team_a) && !isUnresolvedSlot(m.team_b)) {
+          const pairKey = `${nLv}|${[tokA, tokB].sort().join('||')}`;
+          const existing = byLevelAndPair[pairKey];
+          if (!existing || m.status === 'done' || m.status === 'playing' || m.raw_sets_display) {
+            byLevelAndPair[pairKey] = m;
+          }
+        }
+        const cleanNo = String(m.match_id || '').replace(/^0+/, '');
+        if (cleanNo) {
+          const noKey = `${nLv}|${cleanNo}`;
+          const existingNo = byLevelAndNo[noKey];
+          if (!existingNo || m.status === 'done' || m.status === 'playing' || m.raw_sets_display) {
+            byLevelAndNo[noKey] = m;
+          }
+        }
+      });
+
+      function findMatchingLive(nLv, matchObj) {
+        const tokA = getSortedPlayerTokens(matchObj.team_a);
+        const tokB = getSortedPlayerTokens(matchObj.team_b);
+        // Priority 1: Match by Level + Both Player/Team Names (immune to shifted match numbers)
+        if (tokA && tokB && !isUnresolvedSlot(matchObj.team_a) && !isUnresolvedSlot(matchObj.team_b)) {
+          const pairKey = `${nLv}|${[tokA, tokB].sort().join('||')}`;
+          const hit = byLevelAndPair[pairKey];
+          if (hit) {
+            const hitTokA = getSortedPlayerTokens(hit.team_a);
+            const swapped = (hitTokA && hitTokA === tokB && hitTokA !== tokA);
+            return { live: hit, swapped };
+          }
+        }
+        // Priority 2: Match by Level + Real Match Number (only if slot is unresolved Winner# or shares a player name)
+        const realNo = String(matchObj.real_match_no || matchObj.match_id || '').replace(/^0+/, '');
+        if (realNo && /^\d+$/.test(realNo)) {
+          const hitNo = byLevelAndNo[`${nLv}|${realNo}`];
+          if (hitNo) {
+            const hTokA = getSortedPlayerTokens(hitNo.team_a);
+            const hTokB = getSortedPlayerTokens(hitNo.team_b);
+            const unresA = isUnresolvedSlot(matchObj.team_a);
+            const unresB = isUnresolvedSlot(matchObj.team_b);
+            if ((unresA && unresB) || (tokA && (tokA === hTokA || tokA === hTokB)) || (tokB && (tokB === hTokA || tokB === hTokB))) {
+              const swapped = (!unresB && tokB === hTokA) || (!unresA && tokA === hTokB);
+              return { live: hitNo, swapped };
+            }
+          }
+        }
+        return null;
+      }
+
+      function applyLiveToMatch(m, hitObj) {
+        if (!hitObj || !hitObj.live) return;
+        const lv = hitObj.live;
+        const sw = hitObj.swapped;
+
+        // Fill in unresolved Winner # slots if live match already has concrete player names
+        const liveTeamA = sw ? lv.team_b : lv.team_a;
+        const liveTeamB = sw ? lv.team_a : lv.team_b;
+        if (isUnresolvedSlot(m.team_a) && liveTeamA && !isUnresolvedSlot(liveTeamA)) {
+          m.team_a = liveTeamA;
+        }
+        if (isUnresolvedSlot(m.team_b) && liveTeamB && !isUnresolvedSlot(liveTeamB)) {
+          m.team_b = liveTeamB;
+        }
+
+        if (lv.court) m.court = lv.court;
+        if (lv.time) m.time = lv.time;
+        if (lv.day) m.day_hint = lv.day;
+
+        const hasLiveScore = lv.status === 'done' || lv.status === 'playing' || lv.status === 'standby' || lv.raw_sets_display || Number(lv.score_a) > 0 || Number(lv.score_b) > 0;
+        if (hasLiveScore) {
+          m.status = lv.status || m.status;
+          m.raw_status = lv.raw_status || m.raw_status;
+          m.tv_route = lv.tv_route || m.tv_route;
+          m.score_a = sw ? lv.score_b : lv.score_a;
+          m.score_b = sw ? lv.score_a : lv.score_b;
+
+          if (lv.raw_sets_display) {
+            if (sw) {
+              m.raw_sets_display = String(lv.raw_sets_display)
+                .split(',')
+                .map(s => {
+                  const p = s.trim().split('-');
+                  return p.length === 2 ? `${p[1].trim()}-${p[0].trim()}` : s.trim();
+                })
+                .join(', ');
+            } else {
+              m.raw_sets_display = lv.raw_sets_display;
+            }
+          }
+
+          const sc = parseMatchScore(m);
+          if (lv.winner === 'TEAM1') {
+            m.winner = sw ? m.team_b : m.team_a;
+          } else if (lv.winner === 'TEAM2') {
+            m.winner = sw ? m.team_a : m.team_b;
+          } else if (sc && sc.isDone && (sc.ptsA > 0 || sc.ptsB > 0)) {
+            if (sc.ptsA > sc.ptsB) m.winner = m.team_a;
+            else if (sc.ptsB > sc.ptsA) m.winner = m.team_b;
+          }
+        }
+      }
+
+      // 1. Sync all Knockout Brackets and propagate winners round by round
+      Object.keys(clonedBrackets).forEach(lv => {
+        const nLv = normDrawsLevel(lv);
+        const list = clonedBrackets[lv];
+        const byId = {};
+        list.forEach(m => { byId[String(m.match_id)] = m; });
+
+        // Sort matches by round rank ascending so Round 1 winners propagate to Round 2 before Round 2 is synced
+        const sortedByRound = list.slice().sort((a, b) => getBracketRoundRank(a.round) - getBracketRoundRank(b.round));
+
+        sortedByRound.forEach(m => {
+          if (!m.is_bye) {
+            const hit = findMatchingLive(nLv, m);
+            if (hit) applyLiveToMatch(m, hit);
+          }
+          // Determine winner if not explicitly set
+          if (!m.winner) {
+            const sc = parseMatchScore(m);
+            if (sc && sc.isDone && (sc.ptsA > 0 || sc.ptsB > 0)) {
+              if (sc.ptsA > sc.ptsB) m.winner = m.team_a;
+              else if (sc.ptsB > sc.ptsA) m.winner = m.team_b;
+            }
+          }
+          // Propagate winner to next round target match slot
+          if (m.winner && !isUnresolvedSlot(m.winner) && m.next_match_id) {
+            const target = byId[String(m.next_match_id)];
+            if (target) {
+              if (m.next_slot === 'A' && isUnresolvedSlot(target.team_a)) {
+                target.team_a = m.winner;
+              } else if (m.next_slot === 'B' && isUnresolvedSlot(target.team_b)) {
+                target.team_b = m.winner;
+              }
+            }
+          }
+        });
+      });
+
+      // 2. Sync all Round Robin groups and recompute standings from match results
+      clonedRR.forEach(g => {
+        const nLv = normDrawsLevel(g.level);
+        let anyFinishedMatch = false;
+
+        (g.matches || []).forEach(m => {
+          const hit = findMatchingLive(nLv, m);
+          if (hit) applyLiveToMatch(m, hit);
+          const sc = parseMatchScore(m);
+          if ((sc && sc.isDone) || m.status === 'done') {
+            anyFinishedMatch = true;
+          }
+        });
+
+        // Recompute RR standings if any match in the group has finished or has scores
+        if (anyFinishedMatch && Array.isArray(g.standings) && g.standings.length > 0) {
+          const statsByTok = {};
+          g.standings.forEach(st => {
+            const tok = getSortedPlayerTokens(st.team);
+            statsByTok[tok] = {
+              team: st.team,
+              p: 0, w: 0, l: 0,
+              sets_w: 0, sets_l: 0, diff_sets: 0,
+              pts_w: 0, pts_l: 0, diff_pts: 0,
+              pts: 0
+            };
+          });
+
+          (g.matches || []).forEach(m => {
+            const sc = parseMatchScore(m);
+            if (!sc || (!sc.isDone && m.status !== 'done')) return;
+            const tokA = getSortedPlayerTokens(m.team_a);
+            const tokB = getSortedPlayerTokens(m.team_b);
+            const stA = statsByTok[tokA];
+            const stB = statsByTok[tokB];
+            if (!stA || !stB) return;
+
+            let gwA = 0, gwB = 0, pwA = 0, pwB = 0;
+            if (sc.rawSets && sc.rawSets.includes('-')) {
+              sc.rawSets.split(',').forEach(part => {
+                const nums = part.trim().split('-').map(x => parseInt(x.trim(), 10));
+                if (nums.length === 2 && !isNaN(nums[0]) && !isNaN(nums[1])) {
+                  pwA += nums[0];
+                  pwB += nums[1];
+                  if (nums[0] > nums[1]) gwA++;
+                  else if (nums[1] > nums[0]) gwB++;
+                }
+              });
+            } else if (sc.ptsA > 0 || sc.ptsB > 0) {
+              pwA += sc.ptsA;
+              pwB += sc.ptsB;
+              if (sc.ptsA > sc.ptsB) gwA = 1;
+              else if (sc.ptsB > sc.ptsA) gwB = 1;
+            }
+
+            if (gwA === 0 && gwB === 0 && !m.winner) return;
+
+            stA.p++;
+            stB.p++;
+            stA.sets_w += gwA; stA.sets_l += gwB;
+            stB.sets_w += gwB; stB.sets_l += gwA;
+            stA.pts_w += pwA;  stA.pts_l += pwB;
+            stB.pts_w += pwB;  stB.pts_l += pwA;
+
+            const aWon = (gwA > gwB) || (m.winner && getSortedPlayerTokens(m.winner) === tokA);
+            const bWon = (gwB > gwA) || (m.winner && getSortedPlayerTokens(m.winner) === tokB);
+            if (aWon) {
+              stA.w++; stA.pts++;
+              stB.l++;
+            } else if (bWon) {
+              stB.w++; stB.pts++;
+              stA.l++;
+            }
+          });
+
+          const updatedStandings = Object.values(statsByTok).map(s => {
+            s.diff_sets = s.sets_w - s.sets_l;
+            s.diff_pts = s.pts_w - s.pts_l;
+            return s;
+          });
+          updatedStandings.sort((a, b) => (b.pts - a.pts) || (b.diff_sets - a.diff_sets) || (b.diff_pts - a.diff_pts));
+          g.standings = updatedStandings;
+        }
+      });
+
+      bracketData = clonedBrackets;
+      rrData = clonedRR;
+    }
+
+    // =========================================================================
+    // CLIENT-SIDE TOURNAMENT PLANNER (.XLSX) PARSER & UPLOAD MODAL
+    // =========================================================================
+
+    function openDrawsUploadModal() {
+      const modal = document.getElementById('drawsUploadModal');
+      const st = document.getElementById('drawsUploadStatus');
+      if (st) st.style.display = 'none';
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closeDrawsUploadModal() {
+      const modal = document.getElementById('drawsUploadModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    async function resetToBundledDraws() {
+      if (!window.DEFAULT_DRAWS_DATA) return;
+      localStorage.removeItem('sawasdee_draws_v1');
+      applyNewDrawsPayload(window.DEFAULT_DRAWS_DATA, false);
+      const st = document.getElementById('drawsUploadStatus');
+      if (st) {
+        st.style.display = 'block';
+        st.style.background = '#DCFCE7';
+        st.style.color = '#166534';
+        st.style.border = '1px solid #86EFAC';
+        st.innerHTML = `✅ คืนค่าไฟล์สายการแข่งขันเริ่มต้น (${window.DEFAULT_DRAWS_DATA.file_name}) เรียบร้อยแล้ว`;
+      }
+    }
+
+    async function handleDrawsFileSelected(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const st = document.getElementById('drawsUploadStatus');
+      if (st) {
+        st.style.display = 'block';
+        st.style.background = '#FEF3C7';
+        st.style.color = '#92400E';
+        st.style.border = '1px solid #FCD34D';
+        st.innerHTML = `⏳ กำลังอ่านและแปลงข้อมูลสายการแข่งขันจากไฟล์ <b>${file.name}</b>...`;
+      }
+
+      try {
+        if (typeof XLSX === 'undefined') {
+          throw new Error('ไม่พบไลบรารีอ่านไฟล์ Excel (SheetJS) กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต');
+        }
+        const buf = await file.arrayBuffer();
+        const wb = XLSX.read(buf, { type: 'array' });
+        const parsedPayload = parseDrawsWorkbookJS(wb, file.name);
+        const koCount = Object.keys(parsedPayload.brackets || {}).length;
+        const rrCount = (parsedPayload.rr || []).length;
+
+        if (koCount === 0 && rrCount === 0) {
+          throw new Error('ไม่พบชีตสายการแข่งขัน (Main Draw / Standings) ในไฟล์ที่เลือก');
+        }
+
+        // Apply immediately in UI and localStorage
+        applyNewDrawsPayload(parsedPayload, true);
+
+        // Save to Cloud (Supabase announcements id=999999, is_active=false) & Local Server (/api/draws)
+        let savedCloud = false;
+        let savedLocal = false;
+
+        if (sbClient) {
+          try {
+            const { error } = await sbClient
+              .from('announcements')
+              .upsert({
+                id: 999999,
+                message: JSON.stringify(parsedPayload),
+                is_active: false,
+                updated_at: new Date().toISOString()
+              }, { onConflict: 'id' });
+            if (!error) savedCloud = true;
+          } catch (e) {
+            console.warn('Supabase draws upsert warning:', e);
+          }
+        }
+
+        if (!window.location.hostname.includes('github.io') && !window.location.hostname.includes('script.googleusercontent.com')) {
+          try {
+            const res = await fetch('/api/draws', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(parsedPayload)
+            });
+            if (res.ok) savedLocal = true;
+          } catch (e) {}
+        }
+
+        if (st) {
+          st.style.background = '#DCFCE7';
+          st.style.color = '#166534';
+          st.style.border = '1px solid #86EFAC';
+          st.innerHTML = `
+            ✅ <b>อัปโหลดและซิงค์สายการแข่งขันสำเร็จ!</b><br>
+            • ไฟล์: <b>${file.name}</b><br>
+            • พบสายแพ้คัดออก (Brackets): <b>${koCount} รุ่น</b> | รอบแบ่งกลุ่ม (Round Robin): <b>${rrCount} รุ่น</b><br>
+            • สถานะการบันทึก: ${savedCloud ? '☁️ ซิงค์ขึ้น Cloud (ทุกเครื่องเห็นทันที)' : (savedLocal ? '🖥️ บันทึกลงเซิร์ฟเวอร์สนามแล้ว' : '💾 บันทึกในเบราว์เซอร์แล้ว')}
+          `;
+        }
+      } catch (err) {
+        if (st) {
+          st.style.background = '#FEE2E2';
+          st.style.color = '#991B1B';
+          st.style.border = '1px solid #FCA5A5';
+          st.innerHTML = `❌ เกิดข้อผิดพลาด: ${err.message || err}`;
+        }
+      } finally {
+        event.target.value = '';
+      }
+    }
+
+    function parseDrawsWorkbookJS(wb, fileName) {
+      const allBrackets = {};
+      const allRR = [];
+
+      (wb.SheetNames || []).forEach(sheetName => {
+        const ws = wb.Sheets[sheetName];
+        if (!ws) return;
+        const rawGrid = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false });
+        if (!Array.isArray(rawGrid) || rawGrid.length < 5) return;
+
+        // Normalize cells to trimmed strings
+        const grid = rawGrid.map(row => (Array.isArray(row) ? row.map(c => String(c === null || c === undefined ? '' : c).trim()) : []));
+
+        const hasStandingsTop = grid.slice(0, 15).some(r => r.includes('Standings'));
+        const hasWinnerTop = grid.slice(0, 10).some(r => r.includes('Winner'));
+
+        if (hasStandingsTop) {
+          const rrObj = parseRrSheetJS(sheetName, grid);
+          if (rrObj) allRR.push(rrObj);
+        } else if (hasWinnerTop) {
+          const koList = parseKoSheetJS(sheetName, grid);
+          if (koList && koList.length > 0) {
+            allBrackets[koList[0].level] = koList;
+          }
+        }
+      });
+
+      return {
+        file_name: fileName || 'Draws.xlsx',
+        updated_at: new Date().toISOString(),
+        brackets: allBrackets,
+        rr: allRR
+      };
+    }
+
+    function formatDrawTeamJS(p1, c1, p2, c2) {
+      p1 = String(p1 || '').replace(/^\[\d+(?:\/\d+)?\]\s*/, '').trim();
+      p2 = String(p2 || '').replace(/^\[\d+(?:\/\d+)?\]\s*/, '').trim();
+      c1 = String(c1 || '').trim();
+      c2 = String(c2 || '').trim();
+      if (/^bye(\s+\d+)?$/i.test(p1) || /^bye(\s+\d+)?$/i.test(p2)) return 'BYE';
+      if (p1 && p2) {
+        if (c1 && c2) {
+          return c1 === c2 ? `${p1} + ${p2} (${c1})` : `${p1} (${c1}) + ${p2} (${c2})`;
+        } else if (c1 || c2) {
+          return `${p1} + ${p2} (${c1 || c2})`;
+        }
+        return `${p1} + ${p2}`;
+      }
+      const p = p1 || p2;
+      const c = c1 || c2;
+      if (!p) return 'TBD';
+      return (c && c !== p) ? `${p} (${c})` : p;
+    }
+
+    function normDrawNameKeyJS(p1, p2) {
+      const clean = s => String(s || '').replace(/^\[\d+(?:\/\d+)?\]\s*/, '').replace(/\s+/g, ' ').trim().toUpperCase();
+      const a = clean(p1);
+      const b = clean(p2);
+      return (a && b) ? `${a}|${b}` : (a || b);
+    }
+
+    function parseKoSheetJS(sheetName, grid) {
+      const level = sheetName.replace(/-\s*Main\s*Draw$/i, '').trim();
+      let hIdx = -1;
+      for (let i = 0; i < Math.min(10, grid.length); i++) {
+        if (grid[i].includes('Winner')) {
+          hIdx = i;
+          break;
+        }
+      }
+      if (hIdx === -1) return null;
+
+      const headers = grid[hIdx];
+      const winCol = headers.indexOf('Winner');
+      const numRounds = winCol - 4;
+      if (numRounds <= 0) return null;
+
+      let maxSlot = 0;
+      for (let r = hIdx + 1; r < grid.length; r++) {
+        const s0 = (grid[r][0] || '').trim();
+        if (/^\d+$/.test(s0)) {
+          const n = parseInt(s0, 10);
+          if (n > maxSlot) maxSlot = n;
+        }
+      }
+      if (maxSlot === 0) return null;
+
+      const maxCols = Math.max(winCol + 2, ...grid.map(r => r.length));
+      const getCell = (r, c) => (r >= 0 && r < grid.length && c >= 0 && c < grid[r].length) ? (grid[r][c] || '').trim() : '';
+
+      const slots = {};
+      const teamLookup = {};
+      for (let k = 1; k <= maxSlot; k++) {
+        const rt = hIdx + 1 + 2 * (k - 1);
+        const rb = hIdx + 2 + 2 * (k - 1);
+        const p1 = getCell(rt, 4);
+        const c1 = getCell(rt, 1);
+        const p2 = getCell(rb, 4);
+        const c2 = getCell(rb, 1);
+        const tStr = formatDrawTeamJS(p1, c1, p2, c2);
+        slots[k] = tStr;
+        if (tStr !== 'BYE' && tStr !== 'TBD') {
+          teamLookup[normDrawNameKeyJS(p1, p2)] = tStr;
+          if (p1 && !p2) teamLookup[normDrawNameKeyJS(p1)] = tStr;
+          if (p2 && !p1) teamLookup[normDrawNameKeyJS(p2)] = tStr;
+        }
+      }
+
+      const resolveTeamLines = (lines) => {
+        if (!lines || lines.length === 0) return null;
+        if (lines.length >= 2) {
+          const k = normDrawNameKeyJS(lines[0], lines[1]);
+          return teamLookup[k] || formatDrawTeamJS(lines[0], '', lines[1], '');
+        }
+        const k = normDrawNameKeyJS(lines[0]);
+        return teamLookup[k] || formatDrawTeamJS(lines[0], '');
+      };
+
+      const parsedRounds = [];
+      for (let r = 1; r <= numRounds; r++) {
+        const rName = headers[4 + r - 1] || `Round ${r}`;
+        const col = 4 + r;
+        const mCount = Math.floor(maxSlot / Math.pow(2, r));
+        const step = Math.pow(2, r + 1);
+        const rMatches = [];
+
+        for (let m = 0; m < mCount; m++) {
+          const rStart = hIdx + 1 + m * step;
+          const rEnd = Math.min(rStart + step, grid.length);
+          const nonEmpty = [];
+          for (let rr = rStart; rr < rEnd; rr++) {
+            const val = getCell(rr, col);
+            if (val) nonEmpty.push([rr, val]);
+          }
+
+          let court = '';
+          let dayHint = '';
+          let matchNo = '';
+          let isRealNo = false;
+          let timeStr = '';
+          let scoreStr = '';
+          const playerLines = [];
+
+          nonEmpty.forEach(([rr, val]) => {
+            const mCourt = val.match(/^(C\d+|VIP\d+)\s*-\s*(.*)$/i);
+            const mHash = val.match(/^#(\d+):\s*(.*)$/);
+            if (mCourt) {
+              let cRaw = mCourt[1].toUpperCase();
+              if (cRaw.startsWith('C') && cRaw.length === 2) cRaw = 'C0' + cRaw[1];
+              court = cRaw;
+              const loc = mCourt[2];
+              const mDay = loc.match(/Day\s*(\d+)/i);
+              if (mDay) dayHint = 'DAY' + mDay[1];
+            } else if (mHash) {
+              matchNo = mHash[1];
+              const rest = mHash[2].trim();
+              if (rest) {
+                isRealNo = true;
+                const mTm = rest.match(/([A-Za-z]{3})\s+\d+\/\d+\/\d+\s+(\d+:\d+\s*[AP]M)/i);
+                timeStr = mTm ? `${mTm[1]} ${mTm[2]}` : rest;
+                if (!dayHint) {
+                  if (rest.includes('11/21') || /Fri/i.test(rest)) dayHint = 'DAY1';
+                  else if (rest.includes('11/22') || /Sat/i.test(rest)) dayHint = 'DAY2';
+                  else if (rest.includes('11/23') || /Sun/i.test(rest)) dayHint = 'DAY3';
+                }
+              }
+            } else if (/^\d+\s*-\s*\d+/.test(val) || /walkover|retired|w\.o\./i.test(val)) {
+              scoreStr = val;
+            } else {
+              playerLines.push(val);
+            }
+          });
+
+          const winnerTeam = resolveTeamLines(playerLines);
+          let teamA = 'TBD';
+          let teamB = 'TBD';
+          let fA = null;
+          let fB = null;
+
+          if (r === 1) {
+            teamA = slots[2 * m + 1] || 'TBD';
+            teamB = slots[2 * m + 2] || 'TBD';
+          } else {
+            fA = parsedRounds[r - 2][2 * m];
+            fB = parsedRounds[r - 2][2 * m + 1];
+            teamA = fA.winner || (fA.real_match_no ? `Winner #${fA.real_match_no}` : 'TBD');
+            teamB = fB.winner || (fB.real_match_no ? `Winner #${fB.real_match_no}` : 'TBD');
+          }
+
+          const isBye = (r === 1 && (teamA === 'BYE' || teamB === 'BYE'));
+          let resolvedWinner = winnerTeam;
+          if (isBye && !resolvedWinner) {
+            resolvedWinner = teamA !== 'BYE' ? teamA : (teamB !== 'BYE' ? teamB : null);
+          }
+
+          const synthId = isRealNo ? matchNo : `KO_${level}_R${r}_${m + 1}`;
+          const mObj = {
+            match_id: synthId,
+            real_match_no: isRealNo ? matchNo : '',
+            level: level,
+            round: rName,
+            round_idx: r,
+            match_idx: m,
+            court: court,
+            time: timeStr,
+            day_hint: dayHint,
+            team_a: teamA,
+            team_b: teamB,
+            winner: resolvedWinner,
+            raw_sets_display: scoreStr,
+            status: (resolvedWinner || scoreStr) ? 'done' : 'waiting',
+            is_bye: isBye,
+            feeder_a_id: fA ? fA.match_id : '',
+            feeder_b_id: fB ? fB.match_id : '',
+            next_match_id: '',
+            next_slot: ''
+          };
+
+          if (fA) {
+            fA.next_match_id = synthId;
+            fA.next_slot = 'A';
+          }
+          if (fB) {
+            fB.next_match_id = synthId;
+            fB.next_slot = 'B';
+          }
+          rMatches.push(mObj);
+        }
+        parsedRounds.push(rMatches);
+      }
+
+      const flat = [];
+      parsedRounds.forEach(rm => rm.forEach(m => flat.push(m)));
+      return flat;
+    }
+
+    function formatRrTeamJS(playersCell, clubsCell) {
+      const pParts = String(playersCell || '').split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+      const cParts = String(clubsCell || '').split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+      if (pParts.length === 0) return 'TBD';
+      if (pParts.length >= 2) {
+        return formatDrawTeamJS(pParts[0], cParts[0] || '', pParts[1], cParts[1] || cParts[0] || '');
+      }
+      return formatDrawTeamJS(pParts[0], cParts[0] || '', '', '');
+    }
+
+    function parseRrSheetJS(sheetName, grid) {
+      const level = sheetName.replace(/-\s*Main\s*Draw$/i, '').trim();
+      const clubIdx = grid.slice(0, 10).findIndex(r => r.includes('Club'));
+      const stIdx = grid.findIndex(r => r.includes('Standings'));
+      if (stIdx === -1) return null;
+
+      const teamsMap = {};
+      const teamLookup = {};
+      const matches = [];
+
+      if (clubIdx !== -1) {
+        for (let ri = clubIdx + 1; ri < stIdx; ri++) {
+          const row = grid[ri] || [];
+          const numStr = (row[0] || '').trim();
+          if (!/^\d+$/.test(numStr)) continue;
+          const tNum = parseInt(numStr, 10);
+          const tStr = formatRrTeamJS(row[4] || '', row[1] || '');
+          teamsMap[tNum] = tStr;
+          teamLookup[ getSortedPlayerTokens(row[4] || '') ] = tStr;
+        }
+
+        const teamNums = Object.keys(teamsMap).map(Number).sort((a, b) => a - b);
+        for (let ri = clubIdx + 1; ri < stIdx; ri++) {
+          const row = grid[ri] || [];
+          const numStr = (row[0] || '').trim();
+          if (!/^\d+$/.test(numStr)) continue;
+          const tA = parseInt(numStr, 10);
+          teamNums.forEach(tB => {
+            if (tB <= tA) return;
+            const colIdx = 5 + (tB - 1);
+            const cell = (row[colIdx] || '').trim();
+            if (!cell) return;
+            let mId = '';
+            let rnd = 'RR';
+            let timeStr = '';
+            let court = '';
+            let scoreStr = '';
+            const mHash = cell.match(/^#(\d+):\s*(.*)$/);
+            if (mHash) {
+              mId = mHash[1];
+              const rest = mHash[2].trim();
+              const mInfo = rest.match(/^(R\d+)\s+([A-Za-z]{3})\s+\d+\/\d+\/\d+\s+(\d+:\d+\s*[AP]M)\s+(C\d+|VIP\d+)\b/i);
+              if (mInfo) {
+                rnd = mInfo[1].toUpperCase();
+                timeStr = `${mInfo[2]} ${mInfo[3]}`;
+                let cRaw = mInfo[4].toUpperCase();
+                if (cRaw.startsWith('C') && cRaw.length === 2) cRaw = 'C0' + cRaw[1];
+                court = cRaw;
+              } else {
+                timeStr = rest;
+              }
+            } else if (/^\d+\s*-\s*\d+/.test(cell)) {
+              scoreStr = cell;
+            }
+            matches.push({
+              match_id: mId || `RR_${level}_${tA}_${tB}`,
+              real_match_no: mId,
+              level: level,
+              round: rnd,
+              court: court,
+              time: timeStr,
+              team_a: teamsMap[tA],
+              team_b: teamsMap[tB],
+              raw_sets_display: scoreStr,
+              status: scoreStr ? 'done' : 'waiting'
+            });
+          });
+        }
+      }
+
+      const standings = [];
+      for (let ri = stIdx + 1; ri < grid.length; ri++) {
+        const row = grid[ri] || [];
+        if (row.length < 4 || !(row[1] || '').trim()) continue;
+        const rawName = (row[1] || '').trim();
+        const tStr = teamLookup[getSortedPlayerTokens(rawName)] || formatRrTeamJS(rawName, '');
+        const pts = /^\d+$/.test(row[2] || '') ? parseInt(row[2], 10) : 0;
+        const pl = /^\d+$/.test(row[3] || '') ? parseInt(row[3], 10) : 0;
+        const gw = /^\d+$/.test(row[4] || '') ? parseInt(row[4], 10) : 0;
+        const gl = /^\d+$/.test(row[6] || '') ? parseInt(row[6], 10) : 0;
+        const pw = /^\d+$/.test(row[7] || '') ? parseInt(row[7], 10) : 0;
+        const plost = /^\d+$/.test(row[9] || '') ? parseInt(row[9], 10) : 0;
+        standings.push({
+          team: tStr,
+          p: pl,
+          w: pts,
+          l: Math.max(0, pl - pts),
+          sets_w: gw,
+          sets_l: gl,
+          diff_sets: gw - gl,
+          pts_w: pw,
+          pts_l: plost,
+          diff_pts: pw - plost,
+          pts: pts
+        });
+      }
+
+      return {
+        level: level,
+        pool: 'Main Draw (Round Robin)',
+        standings: standings,
+        matches: matches
+      };
+    }
+
+    function getBracketRoundRank(roundName) {
+      const r = String(roundName || '').trim().toUpperCase();
+      if (r === 'R256') return 10;
+      if (r === 'ROUND 1' || r === 'R1') return 15;
+      if (r === 'R128') return 20;
+      if (r === 'ROUND 2' || r === 'R2') return 25;
+      if (r === 'R64') return 30;
+      if (r === 'ROUND 3' || r === 'R3') return 35;
+      if (r === 'R32') return 40;
+      if (r === 'ROUND 4' || r === 'R4') return 45;
+      if (r === 'R16' || r === 'ROUND 5') return 50;
+      if (r === 'QF' || r === 'QUARTERFINAL' || r === 'QUARTERFINALS' || r === 'QUARTER-FINAL' || r === 'R8') return 60;
+      if (r === 'SF' || r === 'SEMIFINAL' || r === 'SEMIFINALS' || r === 'SEMI-FINAL') return 70;
+      if (r === 'F' || r === 'FINAL' || r === 'FINALS') return 80;
+      return 90;
+    }
+
+    function isBracketFeederForSlot(cand, slotText) {
+      if (!cand || !slotText) return false;
+      const sUpper = String(slotText).toUpperCase();
+      const cleanId = String(cand.real_match_no || cand.match_id || '').replace(/^0+/, '');
+      if (cleanId && /^\d+$/.test(cleanId)) {
+        const idRegex = new RegExp('#0*' + cleanId + '\\b');
+        if (idRegex.test(sUpper)) return true;
+      }
+      const coreA = cleanBracketCoreName(cand.team_a);
+      const coreB = cleanBracketCoreName(cand.team_b);
+      if (coreA && coreA.length >= 4 && !coreA.includes('WINNER #') && sUpper.includes(coreA)) return true;
+      if (coreB && coreB.length >= 4 && !coreB.includes('WINNER #') && sUpper.includes(coreB)) return true;
+      return false;
+    }
+
+    function jumpToBracketCategory(lv) {
+      const sel = document.getElementById('bracketLevelFilter');
+      if (sel) {
+        sel.value = lv;
+        renderBracket();
+      }
+    }
+
+    function onBracketSearchInput() {
+      renderBracket();
+    }
+
+    // Render Knockout Bracket with Tree Alignment & SVG Connector Lines
     function renderBracket() {
       const lv = document.getElementById('bracketLevelFilter').value;
       const container = document.getElementById('bracketContainer');
+      const noticeEl = document.getElementById('bracketSearchNotice');
+      const searchQ = (document.getElementById('bracketSearch')?.value || '').trim().toLowerCase();
+      const showByes = document.getElementById('chkShowByes') ? document.getElementById('chkShowByes').checked : true;
 
       if (!lv || !bracketData[lv] || bracketData[lv].length === 0) {
+        if (noticeEl) noticeEl.style.display = 'none';
         container.innerHTML = `<div class="empty-state"><div class="empty-icon">🌳</div>Please select a category above to view the tournament bracket tree.</div>`;
         return;
       }
 
-      const matches = bracketData[lv];
+      // Cross-category player search helper if user searches for a player in the search box
+      if (searchQ && searchQ.length >= 2 && noticeEl) {
+        const curHits = (bracketData[lv] || []).filter(m =>
+          String(m.team_a || '').toLowerCase().includes(searchQ) ||
+          String(m.team_b || '').toLowerCase().includes(searchQ) ||
+          String(m.real_match_no || m.match_id || '').toLowerCase() === searchQ.replace(/^#/, '')
+        ).length;
+
+        const otherLevels = [];
+        Object.keys(bracketData).forEach(otherLv => {
+          if (otherLv === lv) return;
+          const hasHit = (bracketData[otherLv] || []).some(m =>
+            String(m.team_a || '').toLowerCase().includes(searchQ) ||
+            String(m.team_b || '').toLowerCase().includes(searchQ)
+          );
+          if (hasHit) otherLevels.push(otherLv);
+        });
+
+        const otherLinks = otherLevels.slice(0, 10).map(oLv =>
+          `<button type="button" onclick="jumpToBracketCategory('${oLv}')" style="background:#0F766E; color:#FFFFFF; border:none; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:800; cursor:pointer; margin:2px;">${oLv}</button>`
+        ).join(' ');
+
+        noticeEl.style.display = 'block';
+        noticeEl.innerHTML = `🔎 ผลการค้นหา <b>"${searchQ}"</b> ในรุ่น <b>${lv}</b>: พบ <b>${curHits}</b> ตำแหน่ง` +
+          (otherLevels.length > 0 ? ` • พบในรุ่นอื่นอีก (${otherLevels.length} รุ่น): ${otherLinks}` : '');
+      } else if (noticeEl) {
+        noticeEl.style.display = 'none';
+      }
+
+      let rawMatches = bracketData[lv].map(m => Object.assign({}, m));
+      if (!showByes) {
+        rawMatches = rawMatches.filter(m => !m.is_bye);
+      }
+
       const roundsMap = {};
-      matches.forEach(m => {
+      const roundNames = [];
+
+      rawMatches.forEach(m => {
         const rName = m.round || 'Knockout';
-        if (!roundsMap[rName]) roundsMap[rName] = [];
+        if (!roundsMap[rName]) {
+          roundsMap[rName] = [];
+          roundNames.push(rName);
+        }
         roundsMap[rName].push(m);
       });
 
-      let bracketHtml = '<div class="bracket-container">';
-      for (const rName in roundsMap) {
+      roundNames.sort((a, b) => getBracketRoundRank(a) - getBracketRoundRank(b));
+
+      // Link feeder matches from earlier rounds into target matches of later rounds & sort in tree order
+      for (let rIdx = roundNames.length - 1; rIdx > 0; rIdx--) {
+        const currRound = roundsMap[roundNames[rIdx]];
+        const prevRound = roundsMap[roundNames[rIdx - 1]];
+        const usedPrev = new Set();
+        const orderedPrev = [];
+
+        currRound.forEach((target, tIdx) => {
+          let feedA = null;
+          let feedB = null;
+
+          // 1. Check explicit next_match_id from parser/server or text match
+          prevRound.forEach(cand => {
+            if (usedPrev.has(cand.match_id)) return;
+            if (!feedA && ((cand.next_match_id && String(cand.next_match_id) === String(target.match_id) && cand.next_slot === 'A') || isBracketFeederForSlot(cand, target.team_a))) {
+              feedA = cand;
+              usedPrev.add(cand.match_id);
+            } else if (!feedB && ((cand.next_match_id && String(cand.next_match_id) === String(target.match_id) && cand.next_slot === 'B') || isBracketFeederForSlot(cand, target.team_b))) {
+              feedB = cand;
+              usedPrev.add(cand.match_id);
+            }
+          });
+
+          // 2. Fallback: if prevRound has exactly 2x matches of currRound, pair by index (2*tIdx, 2*tIdx+1)
+          if (!feedA && !feedB && prevRound.length === currRound.length * 2) {
+            const cA = prevRound[tIdx * 2];
+            const cB = prevRound[tIdx * 2 + 1];
+            if (cA && !usedPrev.has(cA.match_id)) { feedA = cA; usedPrev.add(cA.match_id); }
+            if (cB && !usedPrev.has(cB.match_id)) { feedB = cB; usedPrev.add(cB.match_id); }
+          }
+
+          if (feedA) {
+            feedA.next_match_id = target.match_id;
+            feedA.next_slot = 'A';
+            target.feeder_a_id = feedA.match_id;
+            orderedPrev.push(feedA);
+          }
+          if (feedB) {
+            feedB.next_match_id = target.match_id;
+            feedB.next_slot = 'B';
+            target.feeder_b_id = feedB.match_id;
+            orderedPrev.push(feedB);
+          }
+        });
+
+        prevRound.forEach(cand => {
+          if (!usedPrev.has(cand.match_id)) orderedPrev.push(cand);
+        });
+
+        roundsMap[roundNames[rIdx - 1]] = orderedPrev;
+      }
+
+      let bracketHtml = `
+        <div class="bracket-container" id="bracketTreeWrap">
+          <svg class="bracket-svg-lines" id="bracketSvgLines"></svg>
+      `;
+
+      roundNames.forEach((rName, rIdx) => {
+        const list = roundsMap[rName];
+        const realPlayCount = list.filter(m => !m.is_bye).length;
         bracketHtml += `
-          <div class="bracket-round">
-            <div class="bracket-round-title">${rName}</div>
-            ${roundsMap[rName].map(m => {
-              const scB = parseMatchScore(m);
-              const scoreTagA = scB ? `<span class="sch-score-tag ${scB.scoreA > scB.scoreB ? 'winner' : ''}">${scB.scoreA}</span>` : '';
-              const scoreTagB = scB ? `<span class="sch-score-tag ${scB.scoreB > scB.scoreA ? 'winner' : ''}">${scB.scoreB}</span>` : '';
-              const winA = (m.winner && m.winner === m.team_a) || (scB && scB.isDone && scB.scoreA > scB.scoreB);
-              const winB = (m.winner && m.winner === m.team_b) || (scB && scB.isDone && scB.scoreB > scB.scoreA);
-              return `
-                <div class="bracket-match-card">
-                  <div style="font-size:0.75rem; color:var(--muted); display:flex; justify-content:space-between; margin-bottom:4px;">
-                    <span>#${m.match_id}</span>
-                    <span>${m.court ? 'Court ' + m.court : ''} ${m.time}</span>
-                  </div>
-                  <div class="bracket-team ${winA ? 'winner' : ''}">
-                    <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-                      <span>${formatTeamDisplay(m.team_a)}</span>
-                      ${scoreTagA}
+          <div class="bracket-round" data-round-idx="${rIdx}">
+            <div class="bracket-round-title">${rName} <span style="font-size:0.78rem; font-weight:600; opacity:0.75;">(${realPlayCount})</span></div>
+            <div class="bracket-round-body">
+              ${list.map((m, mIdx) => {
+                const scB = parseMatchScore(m);
+                const hasPtsB = scB && (scB.ptsA > 0 || scB.ptsB > 0);
+                const scoreTagA = hasPtsB ? `<span class="sch-score-tag ${scB.ptsA > scB.ptsB ? 'winner' : ''}">${scB.ptsA}</span>` : '';
+                const scoreTagB = hasPtsB ? `<span class="sch-score-tag ${scB.ptsB > scB.ptsA ? 'winner' : ''}">${scB.ptsB}</span>` : '';
+                const winA = (m.winner && (m.winner === m.team_a || m.winner === 'TEAM1')) || (scB && scB.isDone && scB.ptsA > scB.ptsB);
+                const winB = (m.winner && (m.winner === m.team_b || m.winner === 'TEAM2')) || (scB && scB.isDone && scB.ptsB > scB.ptsA);
+                const hasWinner = (winA || winB) ? '1' : '0';
+                const nextCard = list[mIdx + 1];
+                const isPairEnd = (m.next_match_id && nextCard && String(nextCard.next_match_id) !== String(m.next_match_id));
+
+                const displayId = m.real_match_no ? `#${m.real_match_no}` : (m.is_bye ? 'BYE' : `#${m.match_id}`);
+                const dayPill = m.day_hint ? `<span class="day-pill-mini ${m.day_hint}">${m.day_hint.replace('DAY', 'D')}</span>` : '';
+
+                const hitA = searchQ && searchQ.length >= 2 && String(m.team_a || '').toLowerCase().includes(searchQ);
+                const hitB = searchQ && searchQ.length >= 2 && String(m.team_b || '').toLowerCase().includes(searchQ);
+                const hitId = searchQ && String(m.real_match_no || m.match_id || '').toLowerCase() === searchQ.replace(/^#/, '');
+                const cardHit = (hitA || hitB || hitId) ? 'search-hit' : '';
+
+                let statusFooter = '';
+                if (m.is_bye) {
+                  statusFooter = `<span style="color:#64748B; font-weight:700;">ผ่านเข้ารอบอัตโนมัติ (BYE)</span>`;
+                } else if (m.status === 'playing' || m.tv_route === 'NO1') {
+                  statusFooter = `<span style="color:#16A34A; font-weight:800;">● PLAYING</span>`;
+                } else if (m.status === 'done') {
+                  statusFooter = `<span style="color:#0F766E; font-weight:800;">✓ FINISHED</span>`;
+                } else {
+                  statusFooter = `<span style="font-weight:700;">WAITING</span>`;
+                }
+
+                return `
+                  <div class="bracket-match-card ${isPairEnd ? 'pair-end' : ''} ${m.is_bye ? 'is-bye-card' : ''} ${cardHit}"
+                       id="bcard-${m.match_id}"
+                       data-match-id="${m.match_id}"
+                       data-next-id="${m.next_match_id || ''}"
+                       data-next-slot="${m.next_slot || ''}"
+                       data-feed-a="${m.feeder_a_id || ''}"
+                       data-feed-b="${m.feeder_b_id || ''}"
+                       data-has-winner="${hasWinner}">
+                    <div style="font-size:0.74rem; color:var(--muted); display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; gap:4px;">
+                      <span style="font-weight:800; color:#334155;">${displayId}</span>
+                      <span style="text-align:right;">${dayPill}${m.court ? '<b style="color:var(--accent);">' + m.court + '</b> ' : ''}${m.time || ''}</span>
+                    </div>
+                    <div class="bracket-team ${winA ? 'winner' : ''} ${hitA ? 'search-hit-slot' : ''}" data-slot="A">
+                      <div style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:6px;">
+                        <span>${formatTeamDisplay(m.team_a)}</span>
+                        ${scoreTagA}
+                      </div>
+                    </div>
+                    <div class="bracket-team ${winB ? 'winner' : ''} ${hitB ? 'search-hit-slot' : ''}" data-slot="B" style="margin-top:4px;">
+                      <div style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:6px;">
+                        <span>${formatTeamDisplay(m.team_b)}</span>
+                        ${scoreTagB}
+                      </div>
+                    </div>
+                    <div style="font-size:0.72rem; color:var(--muted); display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+                      <span style="color:#059669; font-weight:800;">${scB && scB.rawSets ? scB.rawSets : (m.raw_sets_display || '')}</span>
+                      ${statusFooter}
                     </div>
                   </div>
-                  <div class="bracket-team ${winB ? 'winner' : ''}" style="margin-top:4px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-                      <span>${formatTeamDisplay(m.team_b)}</span>
-                      ${scoreTagB}
-                    </div>
-                  </div>
-                  <div style="font-size:0.72rem; color:var(--muted); display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
-                    <span style="color:#059669; font-weight:700;">${scB && scB.rawSets ? scB.rawSets : ''}</span>
-                    <span>${m.status ? m.status.toUpperCase() : ''}</span>
-                  </div>
-                </div>
-              `;
-            }).join('')}
+                `;
+              }).join('')}
+            </div>
           </div>
         `;
-      }
+      });
+
       bracketHtml += '</div>';
       container.innerHTML = bracketHtml;
+
+      requestAnimationFrame(() => {
+        alignAndDrawBracketTree();
+      });
     }
 
-    // Render Round Robin
+    function alignAndDrawBracketTree() {
+      const wrap = document.getElementById('bracketTreeWrap');
+      const svg = document.getElementById('bracketSvgLines');
+      if (!wrap || !svg) return;
+
+      const roundEls = Array.from(wrap.querySelectorAll('.bracket-round'));
+      if (roundEls.length === 0) return;
+
+      // Reset custom top offsets before measuring
+      wrap.querySelectorAll('.bracket-match-card').forEach(c => {
+        c.style.marginTop = '0px';
+      });
+
+      // Find anchor round (the round with the most matches, e.g. R32 in MD25-29)
+      let anchorIdx = 0;
+      let maxCount = 0;
+      roundEls.forEach((rEl, idx) => {
+        const cnt = rEl.querySelectorAll('.bracket-match-card').length;
+        if (cnt > maxCount) {
+          maxCount = cnt;
+          anchorIdx = idx;
+        }
+      });
+
+      // 1. Align rounds to the RIGHT of anchorIdx (e.g. R16, QF, SF, F) so each card sits between its feeder cards
+      for (let r = anchorIdx + 1; r < roundEls.length; r++) {
+        const cards = Array.from(roundEls[r].querySelectorAll('.bracket-match-card'));
+        cards.forEach(card => {
+          const feedAId = card.getAttribute('data-feed-a');
+          const feedBId = card.getAttribute('data-feed-b');
+          const feedAEl = feedAId ? document.getElementById('bcard-' + feedAId) : null;
+          const feedBEl = feedBId ? document.getElementById('bcard-' + feedBId) : null;
+
+          if (feedAEl || feedBEl) {
+            const rA = feedAEl ? feedAEl.getBoundingClientRect() : null;
+            const rB = feedBEl ? feedBEl.getBoundingClientRect() : null;
+            let desiredCenterY = 0;
+            if (rA && rB) {
+              desiredCenterY = ((rA.top + rA.height / 2) + (rB.top + rB.height / 2)) / 2;
+            } else if (rA) {
+              desiredCenterY = rA.top + rA.height / 2;
+            } else if (rB) {
+              desiredCenterY = rB.top + rB.height / 2;
+            }
+            const cRect = card.getBoundingClientRect();
+            const currentCenterY = cRect.top + cRect.height / 2;
+            const delta = desiredCenterY - currentCenterY;
+            if (delta > 4) {
+              card.style.marginTop = `${Math.round(delta)}px`;
+            }
+          }
+        });
+      }
+
+      // 2. Align sparse play-in rounds to the LEFT of anchorIdx (e.g. R64 with 4 play-in matches -> R32)
+      for (let r = anchorIdx - 1; r >= 0; r--) {
+        const cards = Array.from(roundEls[r].querySelectorAll('.bracket-match-card'));
+        cards.forEach(card => {
+          const nextId = card.getAttribute('data-next-id');
+          const targetEl = nextId ? document.getElementById('bcard-' + nextId) : null;
+          if (targetEl) {
+            const tRect = targetEl.getBoundingClientRect();
+            const cRect = card.getBoundingClientRect();
+            const desiredTop = tRect.top;
+            const delta = desiredTop - cRect.top;
+            if (delta > 4) {
+              card.style.marginTop = `${Math.round(delta)}px`;
+            }
+          }
+        });
+      }
+
+      // 3. Measure final positions and draw SVG orthogonal bracket connector lines
+      const updatedWrapRect = wrap.getBoundingClientRect();
+      svg.setAttribute('width', wrap.scrollWidth);
+      svg.setAttribute('height', wrap.scrollHeight);
+
+      let pathsHtml = '';
+      const allCards = Array.from(wrap.querySelectorAll('.bracket-match-card'));
+
+      // Group feeders by target match id so pairs form a clean tournament fork (├───)
+      const targetFeedersMap = {};
+      allCards.forEach(card => {
+        const nextId = card.getAttribute('data-next-id');
+        if (!nextId) return;
+        if (!targetFeedersMap[nextId]) targetFeedersMap[nextId] = [];
+        targetFeedersMap[nextId].push(card);
+      });
+
+      Object.keys(targetFeedersMap).forEach(targetId => {
+        const targetEl = document.getElementById('bcard-' + targetId);
+        if (!targetEl) return;
+        const feeders = targetFeedersMap[targetId];
+        const tRect = targetEl.getBoundingClientRect();
+        const x2 = (tRect.left - updatedWrapRect.left) + wrap.scrollLeft;
+        const yTarget = (tRect.top - updatedWrapRect.top) + wrap.scrollTop + tRect.height / 2;
+
+        if (feeders.length === 2) {
+          const f1 = feeders[0];
+          const f2 = feeders[1];
+          const r1 = f1.getBoundingClientRect();
+          const r2 = f2.getBoundingClientRect();
+
+          const x1a = (r1.right - updatedWrapRect.left) + wrap.scrollLeft;
+          const y1a = (r1.top - updatedWrapRect.top) + wrap.scrollTop + r1.height / 2;
+          const x1b = (r2.right - updatedWrapRect.left) + wrap.scrollLeft;
+          const y1b = (r2.top - updatedWrapRect.top) + wrap.scrollTop + r2.height / 2;
+
+          const midX = Math.round((Math.max(x1a, x1b) + x2) / 2);
+          const w1 = f1.getAttribute('data-has-winner') === '1';
+          const w2 = f2.getAttribute('data-has-winner') === '1';
+          const col1 = w1 ? '#059669' : '#94A3B8';
+          const col2 = w2 ? '#059669' : '#94A3B8';
+          const colStem = (w1 || w2) ? '#059669' : '#94A3B8';
+
+          // Top feeder arm
+          pathsHtml += `<path d="M ${x1a} ${y1a} H ${midX} V ${yTarget}" fill="none" stroke="${col1}" stroke-width="${w1 ? 2.8 : 2.2}" stroke-linecap="round" stroke-linejoin="round" />`;
+          pathsHtml += `<circle cx="${x1a}" cy="${y1a}" r="3.5" fill="${col1}" />`;
+
+          // Bottom feeder arm
+          pathsHtml += `<path d="M ${x1b} ${y1b} H ${midX} V ${yTarget}" fill="none" stroke="${col2}" stroke-width="${w2 ? 2.8 : 2.2}" stroke-linecap="round" stroke-linejoin="round" />`;
+          pathsHtml += `<circle cx="${x1b}" cy="${y1b}" r="3.5" fill="${col2}" />`;
+
+          // Merged horizontal stem into target match
+          pathsHtml += `<path d="M ${midX} ${yTarget} H ${x2}" fill="none" stroke="${colStem}" stroke-width="${(w1 || w2) ? 2.8 : 2.2}" stroke-linecap="round" />`;
+          pathsHtml += `<circle cx="${midX}" cy="${yTarget}" r="3.5" fill="${colStem}" />`;
+          pathsHtml += `<circle cx="${x2}" cy="${yTarget}" r="4" fill="${colStem}" />`;
+        } else {
+          // Single feeder (e.g. R64 play-in match feeding into a specific slot of R32)
+          feeders.forEach(f => {
+            const r1 = f.getBoundingClientRect();
+            const x1 = (r1.right - updatedWrapRect.left) + wrap.scrollLeft;
+            const y1 = (r1.top - updatedWrapRect.top) + wrap.scrollTop + r1.height / 2;
+
+            const slot = f.getAttribute('data-next-slot');
+            const slotEl = slot ? targetEl.querySelector(`.bracket-team[data-slot="${slot}"]`) : null;
+            const sRect = slotEl ? slotEl.getBoundingClientRect() : tRect;
+            const ySlot = (sRect.top - updatedWrapRect.top) + wrap.scrollTop + sRect.height / 2;
+
+            const midX = Math.round((x1 + x2) / 2);
+            const hasW = f.getAttribute('data-has-winner') === '1';
+            const col = hasW ? '#059669' : '#0F766E';
+
+            pathsHtml += `<path d="M ${x1} ${y1} H ${midX} V ${ySlot} H ${x2}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />`;
+            pathsHtml += `<circle cx="${x1}" cy="${y1}" r="3.5" fill="${col}" />`;
+            pathsHtml += `<circle cx="${x2}" cy="${ySlot}" r="4" fill="${col}" />`;
+          });
+        }
+      });
+
+      svg.innerHTML = pathsHtml;
+    }
+
+    window.addEventListener('resize', () => {
+      if (currentTab === 'bracket') {
+        requestAnimationFrame(alignAndDrawBracketTree);
+      }
+    });
+
+    // Render Round Robin (Standings + Group Matches)
     function renderRR() {
       const lv = document.getElementById('rrLevelFilter').value;
       const filtered = (rrData || []).filter(g => !lv || g.level === lv);
       const container = document.getElementById('rrContainer');
+      const dict = i18n[currentLang];
 
       if (filtered.length === 0) {
         container.innerHTML = `<div class="card empty-state"><div class="empty-icon">📊</div>No Round Robin standings for this category.</div>`;
         return;
       }
 
-      container.innerHTML = '<div class="rr-grid">' + filtered.map(g => `
-        <div class="card">
-          <div class="rr-header">
-            <span>${g.level}</span>
-            <span style="font-size:0.85rem; background:rgba(255,255,255,0.6); padding:2px 10px; border-radius:999px;">${g.pool}</span>
+      container.innerHTML = '<div class="rr-grid">' + filtered.map(g => {
+        const matchesHtml = (g.matches && g.matches.length > 0) ? `
+          <div style="padding:1rem 1.25rem; border-top:1px solid var(--border); background:#F8FAFC;">
+            <div style="font-size:0.86rem; font-weight:800; color:#0F172A; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+              <span>🏸 ตารางแมตช์ในกลุ่ม (${g.matches.length} แมตช์)</span>
+              <span style="font-size:0.75rem; color:var(--muted); font-weight:600;">ซิงค์ผลสดอัตโนมัติ</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              ${g.matches.map(m => {
+                const sc = parseMatchScore(m);
+                const hasPts = sc && (sc.ptsA > 0 || sc.ptsB > 0);
+                const sTagA = hasPts ? `<span class="sch-score-tag ${sc.ptsA > sc.ptsB ? 'winner' : ''}">${sc.ptsA}</span>` : '';
+                const sTagB = hasPts ? `<span class="sch-score-tag ${sc.ptsB > sc.ptsA ? 'winner' : ''}">${sc.ptsB}</span>` : '';
+                let badgeClass = 'badge-pending';
+                let statusLabel = dict.statusPending;
+                if (m.status === 'playing' || m.tv_route === 'NO1') {
+                  badgeClass = 'badge-playing';
+                  statusLabel = dict.statusPlaying;
+                } else if (m.status === 'done') {
+                  badgeClass = 'badge-done';
+                  statusLabel = dict.statusDone;
+                }
+                return `
+                  <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:10px; padding:10px 12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.76rem; color:var(--muted); margin-bottom:6px;">
+                      <span><b style="color:#0F172A;">#${m.real_match_no || m.match_id}</b> • <span style="background:#F1F5F9; padding:1px 6px; border-radius:4px; font-weight:700;">${m.round || 'RR'}</span></span>
+                      <span><b style="color:var(--accent);">${m.court || '-'}</b> • ${m.time || ''} <span class="badge ${badgeClass}" style="margin-left:4px;">${statusLabel}</span></span>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px;">
+                      <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; background:#F8FAFC; padding:6px 8px; border-radius:6px;">
+                        <span style="font-size:0.84rem;">${formatTeamDisplay(m.team_a)}</span>
+                        ${sTagA}
+                      </div>
+                      <div style="font-size:0.74rem; font-weight:800; color:var(--muted); text-align:center;">
+                        VS
+                        ${sc && sc.rawSets ? `<div style="font-size:0.7rem; color:#059669;">${sc.rawSets}</div>` : ''}
+                      </div>
+                      <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; background:#F8FAFC; padding:6px 8px; border-radius:6px;">
+                        <span style="font-size:0.84rem;">${formatTeamDisplay(m.team_b)}</span>
+                        ${sTagB}
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
           </div>
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th class="text-center" style="width:40px;">#</th>
-                  <th>Player / Team</th>
-                  <th class="text-center">P</th>
-                  <th class="text-center">W</th>
-                  <th class="text-center">L</th>
-                  <th class="text-center">Sets Diff</th>
-                  <th class="text-center" style="color:var(--accent);">Points</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${g.standings.map((t, idx) => `
+        ` : '';
+
+        return `
+          <div class="card">
+            <div class="rr-header">
+              <span>🏆 รุ่น ${g.level}</span>
+              <span style="font-size:0.85rem; background:rgba(255,255,255,0.75); padding:2px 10px; border-radius:999px;">${g.pool}</span>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
                   <tr>
-                    <td class="text-center" style="font-weight:800;">${idx + 1}</td>
-                    <td style="font-weight:700;">${t.team}</td>
-                    <td class="text-center">${t.p}</td>
-                    <td class="text-center" style="color:#16A34A; font-weight:700;">${t.w}</td>
-                    <td class="text-center" style="color:#DC2626;">${t.l}</td>
-                    <td class="text-center">${t.diff_sets > 0 ? '+'+t.diff_sets : t.diff_sets}</td>
-                    <td class="text-center" style="font-weight:800; color:var(--accent);">${t.pts}</td>
+                    <th class="text-center" style="width:40px;">#</th>
+                    <th>Player / Team</th>
+                    <th class="text-center">P</th>
+                    <th class="text-center">W</th>
+                    <th class="text-center">L</th>
+                    <th class="text-center">Games</th>
+                    <th class="text-center">Points (W-L)</th>
+                    <th class="text-center" style="color:var(--accent);">Pts</th>
                   </tr>
-                `).join('')}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  ${g.standings.map((t, idx) => `
+                    <tr>
+                      <td class="text-center" style="font-weight:800;">${idx + 1}</td>
+                      <td style="font-weight:700;">${formatTeamDisplay(t.team)}</td>
+                      <td class="text-center">${t.p}</td>
+                      <td class="text-center" style="color:#16A34A; font-weight:700;">${t.w}</td>
+                      <td class="text-center" style="color:#DC2626;">${t.l}</td>
+                      <td class="text-center">${t.sets_w || 0}-${t.sets_l || 0} (${t.diff_sets > 0 ? '+'+t.diff_sets : t.diff_sets})</td>
+                      <td class="text-center">${t.pts_w || 0}-${t.pts_l || 0}</td>
+                      <td class="text-center" style="font-weight:800; color:var(--accent); font-size:1rem;">${t.pts}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+            ${matchesHtml}
           </div>
-        </div>
-      `).join('') + '</div>';
+        `;
+      }).join('') + '</div>';
     }
 
     // --- In-App CourtCam Engine ---
