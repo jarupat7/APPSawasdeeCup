@@ -2250,32 +2250,40 @@
         }
       });
 
-      function findMatchingLive(nLv, matchObj) {
+      const usedLiveSet = new Set();
+
+      function findMatchingLivePass1(nLv, matchObj) {
         const tokA = getSortedPlayerTokens(matchObj.team_a);
         const tokB = getSortedPlayerTokens(matchObj.team_b);
-        // Priority 1: Match by Level + Both Player/Team Names (immune to shifted match numbers)
+        // Pass 1: Match by Level + Both Player/Team Names (immune to shifted match numbers)
         if (tokA && tokB && !isUnresolvedSlot(matchObj.team_a) && !isUnresolvedSlot(matchObj.team_b)) {
           const pairKey = `${nLv}|${[tokA, tokB].sort().join('||')}`;
           const hit = byLevelAndPair[pairKey];
           if (hit) {
+            usedLiveSet.add(hit);
             const hitTokA = getSortedPlayerTokens(hit.team_a);
             const swapped = (hitTokA && hitTokA === tokB && hitTokA !== tokA);
             return { live: hit, swapped };
           }
         }
-        // Priority 2: Match by Level + Real Match Number (only if slot is unresolved Winner# or shares a player name)
+        return null;
+      }
+
+      function findMatchingLivePass2(nLv, matchObj) {
+        const tokA = getSortedPlayerTokens(matchObj.team_a);
+        const tokB = getSortedPlayerTokens(matchObj.team_b);
+        // Pass 2: Match by Level + Real Match Number if live match was not already matched by player pair in Pass 1
         const realNo = String(matchObj.real_match_no || matchObj.match_id || '').replace(/^0+/, '');
         if (realNo && /^\d+$/.test(realNo)) {
           const hitNo = byLevelAndNo[`${nLv}|${realNo}`];
-          if (hitNo) {
+          if (hitNo && !usedLiveSet.has(hitNo)) {
+            usedLiveSet.add(hitNo);
             const hTokA = getSortedPlayerTokens(hitNo.team_a);
             const hTokB = getSortedPlayerTokens(hitNo.team_b);
             const unresA = isUnresolvedSlot(matchObj.team_a);
             const unresB = isUnresolvedSlot(matchObj.team_b);
-            if ((unresA && unresB) || (tokA && (tokA === hTokA || tokA === hTokB)) || (tokB && (tokB === hTokA || tokB === hTokB))) {
-              const swapped = (!unresB && tokB === hTokA) || (!unresA && tokA === hTokB);
-              return { live: hitNo, swapped };
-            }
+            const swapped = (!unresB && tokB && tokB === hTokA) || (!unresA && tokA && tokA === hTokB);
+            return { live: hitNo, swapped };
           }
         }
         return null;
@@ -2300,7 +2308,8 @@
         if (lv.time) m.time = lv.time;
         if (lv.day) m.day_hint = lv.day;
 
-        const hasLiveScore = lv.status === 'done' || lv.status === 'playing' || lv.status === 'standby' || lv.raw_sets_display || Number(lv.score_a) > 0 || Number(lv.score_b) > 0;
+        const cleanLiveSets = (lv.raw_sets_display && lv.raw_sets_display !== '0-0') ? lv.raw_sets_display : '';
+        const hasLiveScore = lv.status === 'done' || lv.status === 'playing' || lv.status === 'standby' || cleanLiveSets.length > 0 || Number(lv.score_a) > 0 || Number(lv.score_b) > 0;
         if (hasLiveScore) {
           m.status = lv.status || m.status;
           m.raw_status = lv.raw_status || m.raw_status;
@@ -2308,9 +2317,9 @@
           m.score_a = sw ? lv.score_b : lv.score_a;
           m.score_b = sw ? lv.score_a : lv.score_b;
 
-          if (lv.raw_sets_display) {
+          if (cleanLiveSets) {
             if (sw) {
-              m.raw_sets_display = String(lv.raw_sets_display)
+              m.raw_sets_display = String(cleanLiveSets)
                 .split(',')
                 .map(s => {
                   const p = s.trim().split('-');
@@ -2318,8 +2327,10 @@
                 })
                 .join(', ');
             } else {
-              m.raw_sets_display = lv.raw_sets_display;
+              m.raw_sets_display = cleanLiveSets;
             }
+          } else if ((Number(m.score_a) > 0 || Number(m.score_b) > 0) && !m.raw_sets_display) {
+            m.raw_sets_display = `${m.score_a || 0}-${m.score_b || 0}`;
           }
 
           const sc = parseMatchScore(m);
@@ -2341,33 +2352,64 @@
         const byId = {};
         list.forEach(m => { byId[String(m.match_id)] = m; });
 
-        // Sort matches by round rank ascending so Round 1 winners propagate to Round 2 before Round 2 is synced
-        const sortedByRound = list.slice().sort((a, b) => getBracketRoundRank(a.round) - getBracketRoundRank(b.round));
+        // Group by round in ascending order so earlier round winners propagate to next round before next round is synced
+        const roundRankGroups = {};
+        const ranks = [];
+        list.forEach(m => {
+          const rk = getBracketRoundRank(m.round);
+          if (!roundRankGroups[rk]) {
+            roundRankGroups[rk] = [];
+            ranks.push(rk);
+          }
+          roundRankGroups[rk].push(m);
+        });
+        ranks.sort((a, b) => a - b);
 
-        sortedByRound.forEach(m => {
-          if (!m.is_bye) {
-            const hit = findMatchingLive(nLv, m);
-            if (hit) applyLiveToMatch(m, hit);
-          }
-          // Determine winner if not explicitly set
-          if (!m.winner) {
-            const sc = parseMatchScore(m);
-            if (sc && sc.isDone && (sc.ptsA > 0 || sc.ptsB > 0)) {
-              if (sc.ptsA > sc.ptsB) m.winner = m.team_a;
-              else if (sc.ptsB > sc.ptsA) m.winner = m.team_b;
-            }
-          }
-          // Propagate winner to next round target match slot
-          if (m.winner && !isUnresolvedSlot(m.winner) && m.next_match_id) {
-            const target = byId[String(m.next_match_id)];
-            if (target) {
-              if (m.next_slot === 'A' && isUnresolvedSlot(target.team_a)) {
-                target.team_a = m.winner;
-              } else if (m.next_slot === 'B' && isUnresolvedSlot(target.team_b)) {
-                target.team_b = m.winner;
+        ranks.forEach(rk => {
+          const rList = roundRankGroups[rk];
+          const matchedInPass1 = new Set();
+
+          // Pass 1: Match by exact player/team pair
+          rList.forEach(m => {
+            if (!m.is_bye) {
+              const hit1 = findMatchingLivePass1(nLv, m);
+              if (hit1) {
+                applyLiveToMatch(m, hit1);
+                matchedInPass1.add(m.match_id);
               }
             }
-          }
+          });
+
+          // Pass 2: Match remaining unmatched bracket matches in this round by Level + #MatchNo
+          rList.forEach(m => {
+            if (!m.is_bye && !matchedInPass1.has(m.match_id)) {
+              const hit2 = findMatchingLivePass2(nLv, m);
+              if (hit2) {
+                applyLiveToMatch(m, hit2);
+              }
+            }
+          });
+
+          // Determine winner and propagate to next round target match slot
+          rList.forEach(m => {
+            if (!m.winner) {
+              const sc = parseMatchScore(m);
+              if (sc && sc.isDone && (sc.ptsA > 0 || sc.ptsB > 0)) {
+                if (sc.ptsA > sc.ptsB) m.winner = m.team_a;
+                else if (sc.ptsB > sc.ptsA) m.winner = m.team_b;
+              }
+            }
+            if (m.winner && !isUnresolvedSlot(m.winner) && m.next_match_id) {
+              const target = byId[String(m.next_match_id)];
+              if (target) {
+                if (m.next_slot === 'A' && isUnresolvedSlot(target.team_a)) {
+                  target.team_a = m.winner;
+                } else if (m.next_slot === 'B' && isUnresolvedSlot(target.team_b)) {
+                  target.team_b = m.winner;
+                }
+              }
+            }
+          });
         });
       });
 
@@ -2377,7 +2419,7 @@
         let anyFinishedMatch = false;
 
         (g.matches || []).forEach(m => {
-          const hit = findMatchingLive(nLv, m);
+          const hit = findMatchingLivePass1(nLv, m) || findMatchingLivePass2(nLv, m);
           if (hit) applyLiveToMatch(m, hit);
           const sc = parseMatchScore(m);
           if ((sc && sc.isDone) || m.status === 'done') {
